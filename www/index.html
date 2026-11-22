@@ -16,6 +16,7 @@
 <body>
 <div id="safe"></div>
 <canvas id="c"></canvas>
+<script src="fishart.js"></script>
 <script>
 'use strict';
 // Oyun 320x180 piksel çözünürlükte çizilir, ekrana keskin piksellerle büyütülür.
@@ -25,40 +26,26 @@ const PX = 58, PY = 175;           // balon balığının yeri
 // Kademeler: 0 = sönük (yem yiyebilir), 1-5 şişkin.
 // Her dokunuş 1 kademe şişirir; dokunulmazsa DEFLATE_SECS'te bir 1 kademe söner.
 const STAGE_R = [7, 13, 19, 26, 33, 41];
-const MAX_STAGE = 5, DEFLATE_SECS = 0.45;
+const MAX_STAGE = 5, DEFLATE_SECS = 0.38;
 const R_MIN = STAGE_R[0], R_MAX = STAGE_R[MAX_STAGE];
 const FOOD_CHANCE = 0.4;
 const HUNGER_SECS = 22;            // hiç yemeden dayanma süresi
 const FOOD = 0.4;                  // bir yemin doldurduğu açlık oranı
-const SPEED_START = 46, SPEED_MAX = 90, SPEED_STEP = 0.7;
+const SPEED_START = 50, SPEED_MAX = 105, SPEED_STEP = 0.9;
 const COMBO_MAX = 5;               // art arda kılpayı çarpanının üst sınırı
 const COIN_PER_SCORE = 4;          // her 4 puan 1 altın
 
-// Yem: s = gövde yarı yüksekliği. Yırtıcı: cls = gelebileceği boy sınıfları (1-5).
-// len: uzunluk/yükseklik oranı, reach: ön ucun (çene, kılıç) gövdeden ne kadar öne uzandığı.
-const SPECIES = [
-  { id: 'hamsi',   food: true, zone: 0, s: 4, len: 2.2 },
-  { id: 'karides', food: true, zone: 0, s: 4, len: 1.9 },
-  { id: 'palyaco', food: true, zone: 1, s: 5, len: 1.5 },
-  { id: 'kelebek', food: true, zone: 1, s: 6, len: 1.05 },
-  { id: 'levrek',      zone: 0, cls: [1, 2],    len: 1.7 },
-  { id: 'barakuda',    zone: 0, cls: [1, 2],    len: 3.0, reach: 1.25 },
-  { id: 'murana',      zone: 1, cls: [1, 2],    len: 4.6 },
-  { id: 'orkinos',     zone: 1, cls: [2, 3],    len: 2.3 },
-  { id: 'kilic',       zone: 2, cls: [2, 3],    len: 2.4, reach: 1.55 },
-  { id: 'kopekbaligi', zone: 2, cls: [3, 4, 5], len: 2.2 },
-  { id: 'fener',       zone: 3, cls: [3, 4],    len: 1.25 },
-  { id: 'orfoz',       zone: 3, cls: [4, 5],    len: 1.6 },
-];
-// Yırtıcı boyu: o kademedeki balon balığından biraz küçük, bir altındakinden büyük.
-const sizeOf = (sp, c) => sp.food ? sp.s : STAGE_R[c] - 2;
+// Türler ve çizimleri fishart.js'te (50 tür).
+const SPECIES = FishArt.SPECIES;
+// Ön ucu gövdeden taşanlar (kılıç, gaga, dokunaç, fener): temas çizimin en önünden sayılır.
+const REACH = new Set(['kilic', 'marlin', 'testere', 'goblin', 'zargana', 'kalamar', 'kalamarcik', 'devkalamar', 'fener']);
 
 // at: bölgeye kaçıncı balıktan sonra girilir
 const ZONES = [
   { at: 0,  top: '#63cde8', bot: '#1f86b5', depth: 0,    rays: 1 },
-  { at: 10, top: '#48b3da', bot: '#176796', depth: 0.1,  rays: 0.8 },
-  { at: 25, top: '#2b82b4', bot: '#0d426f', depth: 0.22, rays: 0.45 },
-  { at: 45, top: '#18436b', bot: '#061a31', depth: 0.38, rays: 0.1 },
+  { at: 8,  top: '#48b3da', bot: '#176796', depth: 0.1,  rays: 0.8 },
+  { at: 20, top: '#2b82b4', bot: '#0d426f', depth: 0.22, rays: 0.45 },
+  { at: 35, top: '#18436b', bot: '#061a31', depth: 0.38, rays: 0.1 },
 ];
 
 // Kademe farkına göre puan: tam eşit = kılpayı.
@@ -70,7 +57,7 @@ const TIERS = [
 ];
 
 const SKINS = [
-  { id: 'klasik', price: 0,   tr: 'KLASİK', en: 'CLASSIC', p: { body: '#f9cf48', shade: '#e3a034', lite: '#fde990', belly: '#fff3cc', fin: '#e8902c', spot: '#c4701d', spike: '#f2b843' } },
+  { id: 'klasik', price: 0,   tr: 'KLASİK', en: 'CLASSIC', p: { out: '#7a3f0e', body: '#f9cf48', shade: '#e3a034', lite: '#fde990', belly: '#fff3cc', fin: '#e8902c', spot: '#c4701d', spike: '#f2b843' } },
   { id: 'seker',  price: 60,  tr: 'ŞEKER',  en: 'CANDY',   p: { body: '#ff9ec7', shade: '#e0679a', lite: '#ffd0e4', belly: '#fff0f6', fin: '#e85a8f', spot: '#c94379', spike: '#ff8ab8' } },
   { id: 'buz',    price: 120, tr: 'BUZ',    en: 'ICE',     p: { body: '#8fd8ff', shade: '#4fa6e0', lite: '#d4f1ff', belly: '#f0fbff', fin: '#3d8fd1', spot: '#2a6fb0', spike: '#7cc8f5' } },
   { id: 'zehir',  price: 200, tr: 'ZEHİR',  en: 'TOXIC',   p: { body: '#8fe06a', shade: '#55a83a', lite: '#c9f5a8', belly: '#eaffd8', fin: '#3f8f2a', spot: '#7a2fb0', spike: '#76c956' } },
@@ -89,12 +76,12 @@ const STR = {
     paused: 'DURAKLATILDI', resume: 'DEVAM İÇİN DOKUN', selected: 'SEÇİLİ', select: 'SEÇ', bought: 'SATIN ALINDI!', noCoins: 'YETERSİZ ALTIN',
     z0: 'SIĞ SULAR', z1: 'MERCAN RESİFİ', z2: 'AÇIK DENİZ', z3: 'DERİN DENİZ',
     t0: ['BU SENSİN: ŞİŞ BALIK', 'BÜYÜKLERE ŞİŞ, KÜÇÜKLERİ YE'],
-    t1: ['BÜYÜK BALIK! ÜSTÜNDEKİ SAYIYA BAK', 'HER DOKUNUŞ 1 KADEME ŞİŞİRİR'], t1ok: ['AFERİN! DOKUNMAZSAN YAVAŞÇA SÖNERSİN'],
+    t1: ['BÜYÜK BALIK! ÜSTÜNDEKİ NOKTALARA BAK', 'HER DOKUNUŞ 1 NOKTA ŞİŞİRİR'], t1ok: ['AFERİN! DOKUNMAZSAN YAVAŞÇA SÖNERSİN'],
     t1fail: 'OLMADI, TEKRAR DENE',
     t2: ['KÜÇÜK BALIK GELİYOR!', 'DOKUNMA: TAMAMEN SÖN VE YE'], t2ok: ['YEDİKÇE AÇLIK ÇUBUĞU DOLAR', 'BOŞALIRSA AÇ KALIRSIN'],
     t2fail: 'KAÇTI! TAMAMEN SÖNMELİSİN',
-    t3: ['SAYISI KADAR ŞİŞ: KILPAYI +5', 'İŞARET ALTIN OLUNCA TAM İSABET'], t3fail: 'OLMADI, TEKRAR DENE',
-    t3okA: ['MÜKEMMEL KILPAYI!', 'ART ARDA KILPAYI = KOMBO'], t3okB: ['GEÇTİN! TAM SAYI = DAHA ÇOK PUAN', 'ART ARDA KILPAYI = KOMBO'],
+    t3: ['NOKTALARI EŞİTLE: KILPAYI +5', 'İŞARET ALTIN OLUNCA TAM İSABET'], t3fail: 'OLMADI, TEKRAR DENE',
+    t3okA: ['MÜKEMMEL KILPAYI!', 'ART ARDA KILPAYI = KOMBO'], t3okB: ['GEÇTİN! TAM EŞİT = DAHA ÇOK PUAN', 'ART ARDA KILPAYI = KOMBO'],
   },
   en: {
     title: 'PUFFY FISH', doc: 'Puffy Fish', tagline: 'PUFF UP AT BIG FISH, EAT SMALL ONES', play: 'PLAY', shop: 'SHOP',
@@ -104,11 +91,11 @@ const STR = {
     paused: 'PAUSED', resume: 'TAP TO RESUME', selected: 'EQUIPPED', select: 'EQUIP', bought: 'PURCHASED!', noCoins: 'NOT ENOUGH COINS',
     z0: 'SHALLOWS', z1: 'CORAL REEF', z2: 'OPEN SEA', z3: 'DEEP SEA',
     t0: ['THIS IS YOU: PUFFY FISH', 'PUFF UP AT BIG FISH, EAT SMALL ONES'],
-    t1: ['BIG FISH! LOOK AT ITS NUMBER', 'EACH TAP PUFFS YOU UP ONE LEVEL'], t1ok: ['NICE! STOP TAPPING AND YOU DEFLATE'],
+    t1: ['BIG FISH! COUNT THE DOTS ABOVE IT', 'EACH TAP ADDS ONE DOT TO YOU'], t1ok: ['NICE! STOP TAPPING AND YOU DEFLATE'],
     t1fail: 'OOPS, TRY AGAIN',
     t2: ['SMALL FISH INCOMING!', 'STOP TAPPING: DEFLATE AND EAT IT'], t2ok: ['EATING FILLS YOUR HUNGER BAR', 'IF IT RUNS OUT, YOU STARVE'],
     t2fail: 'IT GOT AWAY! DEFLATE FULLY',
-    t3: ['MATCH ITS NUMBER: CLOSE CALL +5', 'A GOLD SIGN MEANS A PERFECT MATCH'], t3fail: 'OOPS, TRY AGAIN',
+    t3: ['MATCH ITS DOTS: CLOSE CALL +5', 'A GOLD SIGN MEANS A PERFECT MATCH'], t3fail: 'OOPS, TRY AGAIN',
     t3okA: ['PERFECT CLOSE CALL!', 'CLOSE CALLS IN A ROW = COMBO'], t3okB: ['PASSED! EXACT MATCH = MORE POINTS', 'CLOSE CALLS IN A ROW = COMBO'],
   },
 };
@@ -182,281 +169,6 @@ function line(c, col, lw, pts) {
   for (let i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]);
   c.stroke();
 }
-function clipE(c, rx, ry, fn) { c.save(); c.beginPath(); c.ellipse(0, 0, rx, ry, 0, 0, TAU); c.clip(); fn(); c.restore(); }
-// Gövdenin alt (dy<0) ya da üst (dy>0) kenarında hilal: gölge ve parlama.
-function rim(c, rx, ry, dy, col) {
-  c.fillStyle = col; c.beginPath();
-  c.ellipse(0, 0, rx, ry, 0, 0, TAU);
-  c.moveTo(rx, dy); c.ellipse(0, dy, rx, ry, 0, 0, TAU);
-  c.fill('evenodd');
-}
-function teeth(c, x0, x1, y, h, n) {
-  const w = (x1 - x0) / n;
-  for (let i = 0; i < n; i++) P(c, '#ffffff', [x0 + i * w, y, x0 + (i + 1) * w, y, x0 + (i + 0.5) * w, y + h]);
-}
-function eyeF(c, x, y, er, angry) {
-  er = Math.max(1.5, er); x = Math.round(x) + 0.5; y = Math.round(y) + 0.5;
-  E(c, x, y, er + 1, er + 1, INK);
-  E(c, x, y, er, er, '#ffffff');
-  const pr = Math.max(0.9, er * 0.55);
-  E(c, x - er * 0.35, y + 0.2, pr, pr, INK);
-  if (angry) line(c, INK, Math.max(1, er * 0.55), [x + er * 1.4, y - er * 1.7, x - er * 1.1, y - er * 0.7]);
-}
-function tailF(c, hl, s, col, f, k) {
-  c.save(); c.translate(hl * 0.8, 0); c.rotate(f ? 0.2 : -0.2);
-  const q = s * (k || 1);
-  P(c, col, [0, -q * 0.3, q * 0.95, -q * 0.95, q * 0.55, 0, q * 0.95, q * 0.95, 0, q * 0.3]);
-  c.restore();
-}
-// Sırt koyu, yan orta, karın açık; altta gölge, üstte parlama.
-function body(c, hl, s, k, extra) {
-  E(c, 0, 0, hl, s, k.side);
-  clipE(c, hl, s, () => {
-    E(c, 0, -s * 1.05, hl * 1.15, s * 0.85, k.back);
-    E(c, 0, s * 1.05, hl * 1.1, s * 0.6, k.belly);
-    if (extra) extra();
-    rim(c, hl, s, -Math.max(1.4, s * 0.16), k.shade);
-    rim(c, hl, s, Math.max(1, s * 0.1), k.lite);
-  });
-}
-
-// Balıklar yerel koordinatta sola bakar: baş -hl, kuyruk +hl.
-const DRAW = {
-  hamsi(c, hl, s, f) {
-    tailF(c, hl, s, '#4f86ad', f);
-    P(c, '#4f86ad', [hl * 0.05, -s * 0.8, hl * 0.3, -s * 1.35, hl * 0.45, -s * 0.7]);
-    body(c, hl, s, { back: '#5d93ba', side: '#c4dbe8', belly: '#eef7fb', shade: '#8fb0c4', lite: '#8fc0e0' },
-      () => Rect(c, -hl, -0.5, hl * 2, 1, '#eaf6ff'));
-    eyeF(c, -hl * 0.6, -s * 0.1, s * 0.32, false);
-  },
-  karides(c, hl, s, f) {
-    const dark = '#d65c48';
-    c.save(); c.translate(hl * 0.85, s * 0.1); c.rotate(f ? 0.15 : -0.15);
-    P(c, '#e8735e', [0, 0, s * 1.1, -s * 0.9, s * 1.3, 0, s * 1.1, s * 0.9]);
-    c.restore();
-    for (let i = 0; i < 4; i++) { const x = -hl * 0.3 + i * hl * 0.25; line(c, dark, 1, [x, s * 0.6, x + (f ? 1 : -1), s * 1.4]); }
-    line(c, dark, 1, [-hl * 0.8, -s * 0.4, -hl * 1.15, -s * 1.5, -hl * 1.3, -s * 1.8]);
-    line(c, dark, 1, [-hl * 0.8, -s * 0.2, -hl * 1.3, -s * 0.9]);
-    body(c, hl, s, { back: '#f08872', side: '#ffa48f', belly: '#ffd0c2', shade: dark, lite: '#ffc4b4' }, () => {
-      for (let i = 1; i < 5; i++) Rect(c, Math.round(-hl * 0.5 + i * hl * 0.28), -s, 1, s * 1.2, '#e06a55');
-    });
-    P(c, '#f08872', [-hl * 0.85, -s * 0.5, -hl * 1.3, -s * 0.6, -hl * 0.9, -s * 0.1]);
-    eyeF(c, -hl * 0.62, -s * 0.55, s * 0.3, false);
-  },
-  palyaco(c, hl, s, f) {
-    tailF(c, hl, s, '#f06a14', f);
-    P(c, '#f06a14', [-hl * 0.3, -s * 0.8, hl * 0.05, -s * 1.45, hl * 0.5, -s * 0.7]);
-    P(c, '#f06a14', [-hl * 0.1, s * 0.8, hl * 0.15, s * 1.35, hl * 0.35, s * 0.7]);
-    body(c, hl, s, { back: '#ff7d1f', side: '#ff8e2e', belly: '#ffb062', shade: '#d95a12', lite: '#ffc078' }, () => {
-      for (const [bx, bw] of [[-hl * 0.38, hl * 0.3], [hl * 0.28, hl * 0.28]]) {
-        Rect(c, bx - bw / 2 - 1, -s, bw + 2, s * 2, INK);
-        Rect(c, bx - bw / 2, -s, bw, s * 2, '#ffffff');
-      }
-    });
-    eyeF(c, -hl * 0.68, -s * 0.15, s * 0.28, false);
-  },
-  kelebek(c, hl, s, f) {
-    const fin = '#f2b51a';
-    tailF(c, hl, s, fin, f, 0.8);
-    P(c, fin, [-hl * 0.4, -s * 0.85, -hl * 0.1, -s * 1.35, hl * 0.6, -s * 1.05, hl * 0.85, -s * 0.4]);
-    P(c, fin, [-hl * 0.1, s * 0.85, hl * 0.6, s * 1.15, hl * 0.85, s * 0.4]);
-    body(c, hl, s, { back: '#ffd23f', side: '#ffe066', belly: '#fff2b0', shade: '#e0a614', lite: '#fff3a8' }, () => {
-      Rect(c, Math.round(-hl * 0.62), -s, Math.max(2, Math.round(hl * 0.22)), s * 2, INK);
-      E(c, hl * 0.5, -s * 0.35, Math.max(1.2, s * 0.18), Math.max(1.2, s * 0.18), INK);
-    });
-    P(c, '#ffe066', [-hl * 0.9, -s * 0.15, -hl * 1.3, s * 0.05, -hl * 0.9, s * 0.25]);
-    eyeF(c, -hl * 0.52, -s * 0.15, s * 0.24, false);
-  },
-  levrek(c, hl, s, f) {
-    const fin = '#2d5a47';
-    tailF(c, hl, s, fin, f);
-    const pts = [-hl * 0.5, -s * 0.75];
-    for (let i = 0; i <= 5; i++) pts.push(-hl * 0.45 + i * hl * 0.2, -s * (i % 2 ? 1.0 : 1.4));
-    pts.push(hl * 0.6, -s * 0.6);
-    P(c, fin, pts);
-    P(c, fin, [-hl * 0.1, s * 0.75, hl * 0.2, s * 1.35, hl * 0.4, s * 0.7]);
-    body(c, hl, s, { back: '#3f7059', side: '#7aab8c', belly: '#d8eedb', shade: '#2f5646', lite: '#9cc9ab' }, () => {
-      c.fillStyle = '#5f9174';
-      for (let j = -2; j <= 2; j++) for (let i = 0; i < 6; i++)
-        c.fillRect(Math.round(-hl * 0.15 + i * hl * 0.17 + (j & 1) * hl * 0.08), Math.round(j * s * 0.2), 1, 1);
-      E(c, -hl * 0.78, s * 0.32, hl * 0.24, s * 0.22, '#3a1620');
-      teeth(c, -hl * 0.98, -hl * 0.6, s * 0.12, s * 0.18, 4);
-      c.strokeStyle = '#2f5646'; c.lineWidth = 1; c.beginPath(); c.arc(-hl * 0.62, 0, s * 0.55, -0.9, 0.9); c.stroke();
-    });
-    P(c, fin, [-hl * 0.25, s * 0.15, hl * 0.1, s * 0.5, -hl * 0.1, s * 0.55]);
-    eyeF(c, -hl * 0.58, -s * 0.3, s * 0.15, true);
-  },
-  barakuda(c, hl, s, f) {
-    const fin = '#4a5f72';
-    tailF(c, hl, s, fin, f, 1.25);
-    P(c, fin, [hl * 0.25, -s * 0.8, hl * 0.4, -s * 1.55, hl * 0.62, -s * 0.6]);
-    P(c, fin, [hl * 0.25, s * 0.8, hl * 0.42, s * 1.45, hl * 0.62, s * 0.6]);
-    P(c, fin, [-hl * 0.35, -s * 0.85, -hl * 0.25, -s * 1.3, -hl * 0.1, -s * 0.9]);
-    P(c, '#a9bccb', [-hl * 0.8, -s * 0.6, -hl * 1.3, s * 0.05, -hl * 0.8, s * 0.25]);
-    P(c, '#e3ecf2', [-hl * 0.78, s * 0.2, -hl * 1.24, s * 0.3, -hl * 0.72, s * 0.75]);
-    P(c, '#3a1620', [-hl * 1.22, s * 0.15, -hl * 0.75, s * 0.08, -hl * 0.75, s * 0.4]);
-    teeth(c, -hl * 1.2, -hl * 0.8, s * 0.1, s * 0.32, 5);
-    body(c, hl, s, { back: '#556c80', side: '#a9bccb', belly: '#eaf1f6', shade: '#7b90a3', lite: '#c9d8e4' }, () => {
-      for (let i = -3; i <= 3; i++) Rect(c, Math.round(i * hl * 0.2), -s, Math.max(1, Math.round(hl * 0.06)), s * 1.1, '#3f5466');
-    });
-    eyeF(c, -hl * 0.72, -s * 0.22, s * 0.24, true);
-  },
-  murana(c, hl, s, f) {
-    const fin = '#4c7a2e';
-    P(c, fin, [-hl * 0.5, -s * 0.8, hl * 1.05, f ? -s * 0.3 : s * 0.1, hl * 1.05, f ? 0 : s * 0.4, hl * 0.2, s * 0.85]);
-    P(c, fin, [-hl * 0.55, -s * 0.75, -hl * 0.3, -s * 1.2, hl * 0.6, -s * 0.8, hl * 1.0, -s * 0.15]);
-    body(c, hl, s, { back: '#4f7f30', side: '#6e9e3c', belly: '#b8cf6a', shade: '#3d6624', lite: '#8fbf52' }, () => {
-      c.fillStyle = '#d9cf5a';
-      for (let i = 0; i < 16; i++) c.fillRect(Math.round(-hl * 0.6 + i * hl * 0.11), Math.round(((i * 7) % 5 - 2) * s * 0.2), 1, 1);
-      E(c, -hl * 0.86, s * 0.28, hl * 0.12, s * 0.3, '#3a1620');
-      teeth(c, -hl * 0.98, -hl * 0.74, s * 0.02, s * 0.26, 3);
-    });
-    eyeF(c, -hl * 0.8, -s * 0.35, s * 0.2, true);
-  },
-  orkinos(c, hl, s, f) {
-    const fin = '#1c3560', yel = '#f2c230';
-    tailF(c, hl, s, fin, f, 1.3);
-    P(c, fin, [-hl * 0.25, -s * 0.8, -hl * 0.05, -s * 1.5, hl * 0.15, -s * 0.85]);
-    P(c, yel, [hl * 0.2, -s * 0.75, hl * 0.3, -s * 1.25, hl * 0.42, -s * 0.65]);
-    P(c, yel, [hl * 0.2, s * 0.75, hl * 0.3, s * 1.2, hl * 0.42, s * 0.65]);
-    for (let i = 0; i < 4; i++) {
-      const x = hl * (0.5 + i * 0.1), ey = s * Math.sqrt(1 - (x / hl) ** 2);
-      for (const d of [-1, 1]) P(c, yel, [x - hl * 0.03, d * ey * 0.9, x + hl * 0.04, d * (ey + s * 0.22), x + hl * 0.05, d * ey * 0.85]);
-    }
-    body(c, hl, s, { back: '#22426f', side: '#8fa6bf', belly: '#eef3f8', shade: '#5e7590', lite: '#3f6496' }, () => {
-      Rect(c, -hl, Math.round(-s * 0.15), hl * 2, Math.max(1, Math.round(s * 0.1)), '#c9a43a');
-      E(c, -hl * 0.86, s * 0.22, hl * 0.1, s * 0.12, '#3a1620');
-    });
-    P(c, '#5e7590', [-hl * 0.35, s * 0.05, hl * 0.05, s * 0.35, -hl * 0.2, s * 0.4]);
-    eyeF(c, -hl * 0.72, -s * 0.15, s * 0.16, true);
-  },
-  kilic(c, hl, s, f) {
-    const fin = '#3c4a6b';
-    tailF(c, hl, s, fin, f, 1.4);
-    P(c, fin, [-hl * 0.55, -s * 0.8, -hl * 0.45, -s * 1.95, -hl * 0.1, -s * 0.85]);
-    P(c, '#c9d3e6', [-hl * 0.9, -s * 0.32, -hl * 1.55, -s * 0.12, -hl * 1.55, -s * 0.02, -hl * 0.88, s * 0.05]);
-    body(c, hl, s, { back: '#47577c', side: '#8796ba', belly: '#e2e8f2', shade: '#5d6c90', lite: '#a8b6d6' }, () => {
-      E(c, -hl * 0.86, s * 0.15, hl * 0.08, s * 0.1, '#3a1620');
-    });
-    P(c, fin, [-hl * 0.4, s * 0.3, -hl * 0.1, s * 1.15, -hl * 0.05, s * 0.4]);
-    eyeF(c, -hl * 0.72, -s * 0.18, s * 0.17, true);
-  },
-  kopekbaligi(c, hl, s, f) {
-    const fin = '#5d6f84';
-    tailF(c, hl, s, fin, f, 1.3);
-    P(c, fin, [-hl * 0.15, -s * 0.8, hl * 0.12, -s * 1.8, hl * 0.38, -s * 0.75]);
-    P(c, fin, [hl * 0.55, -s * 0.6, hl * 0.65, -s * 0.95, hl * 0.72, -s * 0.5]);
-    body(c, hl, s, { back: '#6c7e93', side: '#8597ab', belly: '#eef2f5', shade: '#55667a', lite: '#a8b8c9' }, () => {
-      E(c, -hl * 0.68, s * 0.42, hl * 0.26, s * 0.24, '#3a1620');
-      teeth(c, -hl * 0.92, -hl * 0.46, s * 0.22, s * 0.2, 6);
-      teeth(c, -hl * 0.88, -hl * 0.5, s * 0.64, -s * 0.16, 5);
-      for (let i = 0; i < 3; i++) Rect(c, Math.round(-hl * (0.34 - i * 0.08)), -s * 0.25, 1, s * 0.5, '#4d5d70');
-    });
-    P(c, fin, [-hl * 0.2, s * 0.35, hl * 0.12, s * 1.2, hl * 0.15, s * 0.45]);
-    eyeF(c, -hl * 0.66, -s * 0.22, s * 0.11, true);
-  },
-  fener(c, hl, s, f) {
-    const fin = '#2b1e3e';
-    tailF(c, hl, s, fin, f, 0.75);
-    P(c, fin, [hl * 0.1, -s * 0.85, hl * 0.45, -s * 1.3, hl * 0.7, -s * 0.5]);
-    c.strokeStyle = fin; c.lineWidth = Math.max(1.2, s * 0.08); c.lineCap = 'round';
-    c.beginPath(); c.moveTo(-hl * 0.15, -s * 0.9); c.quadraticCurveTo(-hl * 0.6, -s * 1.9, -hl * 1.25, -s * 1.05); c.stroke();
-    E(c, -hl * 1.25, -s * 1.05, s * 0.2, s * 0.2, '#ffe680');
-    E(c, -hl * 1.28, -s * 1.1, s * 0.08, s * 0.08, '#ffffff');
-    body(c, hl, s, { back: '#3b2a55', side: '#4d3a6b', belly: '#5f4a80', shade: '#2a1d3c', lite: '#6c5893' }, () => {
-      E(c, -hl * 0.55, s * 0.3, hl * 0.52, s * 0.45, '#150c1f');
-      teeth(c, -hl * 1.0, -hl * 0.1, -s * 0.1, s * 0.42, 7);
-      teeth(c, -hl * 0.98, -hl * 0.15, s * 0.72, -s * 0.36, 6);
-    });
-    eyeF(c, -hl * 0.28, -s * 0.45, s * 0.12, true);
-  },
-  orfoz(c, hl, s, f) {
-    const fin = '#5a3e26';
-    tailF(c, hl, s, fin, f, 0.9);
-    P(c, fin, [-hl * 0.35, -s * 0.85, -hl * 0.1, -s * 1.25, hl * 0.4, -s * 1.15, hl * 0.7, -s * 0.6]);
-    P(c, fin, [hl * 0.1, s * 0.85, hl * 0.45, s * 1.25, hl * 0.7, s * 0.6]);
-    body(c, hl, s, { back: '#6e4d2f', side: '#8f6a45', belly: '#c9a880', shade: '#5a3e26', lite: '#a8825a' }, () => {
-      c.fillStyle = '#5a3e26';
-      for (let j = -2; j <= 2; j++) for (let i = 0; i < 7; i++)
-        c.fillRect(Math.round(-hl * 0.3 + i * hl * 0.17 + (j & 1) * hl * 0.08), Math.round(j * s * 0.25), 2, 2);
-      E(c, -hl * 0.72, s * 0.35, hl * 0.3, s * 0.28, '#2a1018');
-      E(c, -hl * 0.74, s * 0.08, hl * 0.3, s * 0.09, '#b08560');
-      teeth(c, -hl * 0.98, -hl * 0.5, s * 0.15, s * 0.14, 6);
-    });
-    P(c, fin, [-hl * 0.3, s * 0.1, hl * 0.05, s * 0.45, -hl * 0.15, s * 0.55]);
-    eyeF(c, -hl * 0.55, -s * 0.38, s * 0.1, true);
-  },
-};
-
-const SPR = new Map();
-function fishSprite(id, s, frame) {
-  const key = id + s + '_' + frame;
-  let sp = SPR.get(key);
-  if (!sp) {
-    const sp0 = SPECIES.find(q => q.id === id), hl = s * sp0.len;
-    sp = bakeC(hl * Math.max(1.35, (sp0.reach || 1) + 0.15) + s * 1.3 + 4, s * 2 + 5, c => DRAW[id](c, hl, s, frame));
-    SPR.set(key, sp);
-  }
-  return sp;
-}
-
-const SPOTS = [[-0.45, -0.5, 0.11], [-0.1, -0.7, 0.09], [-0.68, -0.15, 0.08], [0.2, -0.78, 0.07], [-0.28, -0.22, 0.07], [0.05, -0.42, 0.06]];
-// Balon balığı sağa bakar; şişince dikenleri çıkar, sönükken ağzı açıktır.
-function pufferSprite(R, frame, si, dead) {
-  const key = 'p' + R + '_' + frame + (dead ? 'd' : si);
-  let sp = SPR.get(key);
-  if (sp) return sp;
-  const p = dead ? DEAD_SKIN : SKINS[si].p, puffed = R > R_MIN;
-  const L = puffed ? 1 + Math.round(4 * (R - R_MIN) / (R_MAX - R_MIN)) : 0;
-  const T = Math.round(3 + R * 0.35);
-  sp = bakeC(R + L + T + 4, R + L + 6, c => {
-    c.save(); c.translate(-R * 0.82, 0); c.rotate(frame ? 0.25 : -0.25);
-    P(c, p.fin, [0, -2, -T - 1, -T * 0.85, -T * 0.6, 0, -T - 1, T * 0.85, 0, 2]);
-    c.restore();
-    P(c, p.fin, [-R * 0.62, -R * 0.72, -R * 0.9, -R - 3, -R * 0.2, -R * 0.95]);
-    if (puffed) {
-      const n = Math.max(10, Math.min(24, Math.round(TAU * R / 5))), w = Math.min(0.22, 2.4 / R);
-      for (let i = 0; i < n; i++) {
-        const a = (i + 0.5) * TAU / n;
-        P(c, p.spike, [Math.cos(a - w) * R * 0.92, Math.sin(a - w) * R * 0.92, Math.cos(a + w) * R * 0.92, Math.sin(a + w) * R * 0.92,
-                       Math.cos(a) * (R + L + 0.5), Math.sin(a) * (R + L + 0.5)]);
-      }
-    }
-    E(c, 0, 0, R, R, p.body);
-    clipE(c, R, R, () => {
-      E(c, R * 0.08, R * 0.95, R * 1.1, R * 0.65, p.belly);
-      if (R >= 8) for (const [sx, sy, sr] of SPOTS) {
-        const sr2 = Math.max(0.7, R * sr);
-        E(c, Math.round(R * sx) + 0.5, Math.round(R * sy) + 0.5, sr2, sr2, p.spot);
-      }
-      rim(c, R, R, -Math.max(1.3, R * 0.14), p.shade);
-      rim(c, R, R, Math.max(1, R * 0.08), p.lite);
-    });
-    c.save(); c.translate(-R * 0.08, R * 0.3); c.rotate(frame ? 0.7 : 0.2);
-    E(c, -R * 0.2, 0, Math.max(2, R * 0.28), Math.max(1.2, R * 0.14), p.fin);
-    c.restore();
-    if (puffed && !dead) E(c, R * 0.55, R * 0.12, R * 0.12, R * 0.08, '#ff9b7d');
-    const er = Math.max(2, Math.round(R * 0.24)), ex = Math.round(R * 0.42) + 0.5, ey = Math.round(-R * 0.18) + 0.5;
-    E(c, ex, ey, er + 1, er + 1, INK);
-    E(c, ex, ey, er, er, '#ffffff');
-    if (dead) {
-      line(c, INK, 1, [ex - er * 0.6, ey - er * 0.6, ex + er * 0.6, ey + er * 0.6]);
-      line(c, INK, 1, [ex - er * 0.6, ey + er * 0.6, ex + er * 0.6, ey - er * 0.6]);
-    } else {
-      const pr = Math.max(1, er * 0.55);
-      E(c, ex + er * 0.3, ey + 0.2, pr, pr, INK);
-      E(c, ex + er * 0.3 - pr * 0.4, ey - pr * 0.4, Math.max(0.6, pr * 0.35), Math.max(0.6, pr * 0.35), '#ffffff');
-    }
-    if (puffed) E(c, R * 0.98, R * 0.18, Math.max(1, R * 0.07), Math.max(1.5, R * 0.11), dead ? '#9ca3ac' : '#ff7b5a');
-    else {
-      const mr = Math.max(1.6, R * 0.27);
-      E(c, R * 0.86, R * 0.28, mr + 1, mr + 1, INK);
-      E(c, R * 0.86, R * 0.28, mr, mr, '#7a2830');
-    }
-  });
-  SPR.set(key, sp);
-  return sp;
-}
 
 // Deniz dibi süsleri: orijin alt orta.
 const DECO_ART = {
@@ -496,7 +208,6 @@ const BUB = [1, 2, 3].map(rad => {
   if (rad > 1) { const x2 = sp.c.getContext('2d'), k = Math.round(sp.ox - rad * 0.45); x2.fillStyle = '#ffffff'; x2.fillRect(k, k, 1, 1); }
   return sp;
 });
-const GLOW = pixSprite(17, d => d < 2.5 ? 'rgba(255,232,128,0.85)' : d < 5 ? 'rgba(255,232,128,0.4)' : d < 8 ? 'rgba(255,232,128,0.16)' : null);
 const RINGS = new Map();
 function ringSprite(rad, col) {
   const key = rad + col;
@@ -609,18 +320,28 @@ function textSprite(str, sc, c1, c2) {
 function badge(col, pix) {
   return bake(11, 11, 0, 0, c => { E(c, 5.5, 5.5, 5.5, 5.5, col); for (const [x, y] of pix) Rect(c, x, y, 1, 1, '#ffffff'); });
 }
-const digitPix = d => { const gl = FONT[String(d)], out = []; for (let y = 0; y < 7; y++) for (let x = 0; x < 5; x++) if (gl[y + 3][x] === '#') out.push([3 + x, 2 + y]); return out; };
-const BADGE = {};
-for (const [k, col] of [['bad', '#e5533c'], ['gold', '#f0a81c'], ['ok', '#4cc46a'], ['me', '#3d8fd1']]) {
-  BADGE[k] = [];
-  for (let d = 0; d <= MAX_STAGE; d++) BADGE[k][d] = badge(col, digitPix(d));
+// Nokta rozeti: içinde n beyaz nokta olan hap; slots kadar yuva (boş yuvalar koyu).
+function pill(col, empty, n, slots) {
+  const w = 3 + slots * 3;
+  return bake(w, 7, 0, 0, c => {
+    Rect(c, 1, 0, w - 2, 7, col); Rect(c, 0, 1, w, 5, col);
+    for (let i = 0; i < slots; i++) Rect(c, 2 + i * 3, 2, 2, 3, i < n ? '#ffffff' : empty);
+  });
 }
+const BADGE = {};
+for (const [k, col, empty] of [['bad', '#e5533c', '#8a2a1c'], ['gold', '#f0a81c', '#8a5a0a'], ['ok', '#4cc46a', '#1f6a30']]) {
+  BADGE[k] = [];
+  for (let d = 1; d <= MAX_STAGE; d++) BADGE[k][d] = pill(col, empty, d, d);
+}
+BADGE.me = [];
+for (let d = 0; d <= MAX_STAGE; d++) BADGE.me[d] = pill('#3d8fd1', '#173a5e', d, MAX_STAGE);
 BADGE.eat = badge('#4cc46a', [[3, 5], [4, 6], [5, 7], [6, 6], [7, 5], [8, 4], [3, 4], [4, 5], [5, 6], [6, 5], [7, 4], [8, 3]]);
 BADGE.no = badge('#8a96a3', [[3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [7, 3], [6, 4], [4, 6], [3, 7]]);
 
 // ---------- Durum ----------
 const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
 const low = mk(W, H), g = low.getContext('2d');
+g.imageSmoothingEnabled = false;
 
 let state = 'menu';                // menu | shop | tut | play | dead
 let stage = 0, r = R_MIN, deflT = 0, fish = [], pending = null, dist = 0;
@@ -690,10 +411,13 @@ if (NativeApp) NativeApp.addListener('backButton', () => {
 });
 
 // ---------- Oyun mantığı ----------
+// Gövde yüksekliği aynı kademedeki balon balığından biraz küçük olacak kadar tam kat büyütülür.
 function makeFish(sp, c) {
-  const s = sizeOf(sp, c), hl = s * sp.len;
-  fishSprite(sp.id, s, 0); fishSprite(sp.id, s, 1);      // gelmeden önce hazırla
-  return { sp, cls: c, s, hl, front: hl * (sp.reach || 1), x: W + hl + s * 1.3 + 8, y: PY, vy: 0,
+  const im = FishArt.sprite(sp.id, 0), b = im.box, bh = b.y1 - b.y0 + 1, bw = b.x1 - b.x0 + 1;
+  let k = sp.food ? 1 : Math.max(1, Math.round(2 * (STAGE_R[c] - 2) / bh));
+  k = Math.max(1, Math.min(k, Math.floor(W * 1.5 / im.width)));      // ekrandan çok taşmasın
+  const ax = (b.x0 + b.x1 + 1) / 2 * k, ay = (b.y0 + b.y1 + 1) / 2 * k, hl = bw * k / 2;
+  return { sp, cls: c, k, s: bh * k / 2, hl, ax, ay, front: REACH.has(sp.id) ? ax : hl, x: W + ax + 6, y: PY, vy: 0,
            flee: false, done: false, eaten: false, ph: rnd(0, 6) };
 }
 // Sıradaki balığı seç: üst üste en fazla 3 yırtıcı, 2 yem; türler bölgeye göre açılır.
@@ -867,7 +591,7 @@ function update(dt) {
       fish.push(f);
       pending = rollFish();
       // Aralık: iki balığın boyu + tepki süresi
-      dist = 2 * f.hl + f.s + pending.s + speed * rnd(0.8, 1.3);
+      dist = 2 * f.hl + f.s + pending.s + speed * rnd(0.6, 1.1);
     }
   }
   scroll += speed * mdt;
@@ -1007,22 +731,15 @@ function drawHand(x, y, mode) {
   } else g.drawImage(HAND.c, x - HAND.ox, y - 9 - Math.round(Math.sin(time * 3) * 2) - HAND.oy);
 }
 
-function drawFishAt(id, s, x, y, flee, ph) {
-  const sp = fishSprite(id, s, Math.floor(time * 6 + (ph || 0)) & 1);
+// Balığı gövde merkezi (x, y) olacak şekilde k kat büyütüp çizer.
+function drawFishAt(id, k, x, y, flee, ph) {
+  const im = FishArt.sprite(id, Math.floor(time * 6 + (ph || 0)) & 1), b = im.box;
+  const ax = Math.round((b.x0 + b.x1 + 1) / 2 * k), ay = Math.round((b.y0 + b.y1 + 1) / 2 * k);
   x = Math.round(x); y = Math.round(y);
-  if (flee) { g.save(); g.translate(x, y); g.scale(-1, 1); g.drawImage(sp.c, -sp.ox, -sp.oy); g.restore(); }
-  else g.drawImage(sp.c, x - sp.ox, y - sp.oy);
+  if (flee) { g.save(); g.translate(x, y); g.scale(-1, 1); g.drawImage(im, -ax, -ay, im.width * k, im.height * k); g.restore(); }
+  else g.drawImage(im, x - ax, y - ay, im.width * k, im.height * k);
 }
-function drawFish(f) {
-  const y = f.y + Math.sin(time * 2 + f.ph) * 1.5;
-  drawFishAt(f.sp.id, f.s, f.x, y, f.flee, f.ph);
-  if (f.sp.id === 'fener') {
-    const gx = f.x + (f.flee ? 1 : -1) * f.hl * 1.25, gy = y - f.s * 1.05;
-    g.globalAlpha = 0.55 + 0.35 * Math.sin(time * 5 + f.ph);
-    g.drawImage(GLOW.c, Math.round(gx) - GLOW.ox, Math.round(gy) - GLOW.oy);
-    g.globalAlpha = 1;
-  }
-}
+function drawFish(f) { drawFishAt(f.sp.id, f.k, f.x, f.y + Math.sin(time * 2 + f.ph) * 1.5, f.flee, f.ph); }
 // Yaklaşan her balığın başının üstünde, şu anki kademene göre anında değişen rozet.
 function drawBadges() {
   for (const f of fish) {
@@ -1035,18 +752,29 @@ function drawBadges() {
     }
     const close = f.x - f.front - (PX + r) < 90;
     const bounce = danger && close ? -Math.round(Math.abs(Math.sin(time * 10)) * 2) : 0;
-    const y = Math.max(64, Math.round(f.y + Math.sin(time * 2 + f.ph) * 1.5 - f.s * 1.25 - 10)) + bounce;
-    g.drawImage(sp.c, Math.round(f.x - f.hl * 0.55) - 6, y - 6);
+    const k = f.sp.food ? 1 : 2, w = sp.c.width * k, h = sp.c.height * k;   // nokta rozetleri 2 kat büyük
+    const y = Math.max(64, Math.round(f.y + Math.sin(time * 2 + f.ph) * 1.5 - f.s - 6 - h)) + bounce;
+    g.drawImage(sp.c, Math.round(f.x - f.hl * 0.4 - w / 2), y, w, h);
   }
   if (!eaten) {
-    const by = Math.max(64, Math.round(PY - r * 0.8 - 6));
-    g.drawImage(BADGE.me[stage].c, Math.round(PX + r * 0.8) - 2, by - 6);
+    const m = BADGE.me[stage], w = m.c.width * 2, h = m.c.height * 2, by = Math.max(64, Math.round(PY - r - 8 - h));
+    g.drawImage(m.c, Math.round(PX - w / 2), by, w, h);
   }
 }
-function drawPuffer(x, y, rad, dead) {
-  const sp = pufferSprite(Math.round(rad), Math.floor(time * 5) & 1, skin, dead);
-  g.drawImage(sp.c, Math.round(x) - sp.ox, Math.round(y + Math.sin(time * 2.5) * 1.5) - sp.oy);
+// Balon balığı 2 kat büyütülmüş çizilir; çizim yarıçapı oyun yarıçapının yarısı.
+const PUFF = new Map();
+function puffImg(R, frame, si, dead) {
+  const key = R + '_' + frame + '_' + (dead ? 'd' : si);
+  if (!PUFF.has(key)) PUFF.set(key, FishArt.puffer(R, frame, dead ? DEAD_SKIN : SKINS[si].p));
+  return PUFF.get(key);
 }
+function drawPufferAt(x, y, rad, si, dead, k) {
+  k = k || 2;
+  const R = Math.max(4, Math.round(rad / 2)), im = puffImg(R, Math.floor(time * 5) & 1, si, dead);
+  const Ls = R > 4 ? (R >= 9 ? 2 : 1) : 0, pad = Ls + 3, cx = R + pad + 3, cy = R + pad + 1;
+  g.drawImage(im, Math.round(x - cx * k), Math.round(y - cy * k), im.width * k, im.height * k);
+}
+function drawPuffer(x, y, rad, dead) { drawPufferAt(x, y + Math.sin(time * 2.5) * 1.5, rad, skin, dead); }
 
 function groundTop(wx) { return SAND_Y + Math.round(Math.sin(wx * 0.05) * 1.5 + Math.sin(wx * 0.13) * 0.8); }
 function hills(f, col, fn) {
@@ -1118,8 +846,7 @@ function drawHud() {
     if (combo >= 2) txt(L('combo') + ' X' + Math.min(combo, COMBO_MAX), W / 2, 54, comboPulse > 0 ? 2 : 1, '#ffe066', '#f5a623');
   }
 
-  const ic = fishSprite('hamsi', 3, 0);
-  g.drawImage(ic.c, 12 - ic.ox, 11 - ic.oy);
+  drawFishAt('hamsi', 1, 12, 11, false, 0);
   const bx = 24, by = 8, bw = 54, lowH = hunger < 0.3;
   rrect(bx - 1, by - 1, bw + 2, 8, INK);
   g.fillStyle = '#1b3850'; g.fillRect(bx, by, bw, 6);
@@ -1147,7 +874,7 @@ function drawMenu() {
   wrap([L('tagline')], W - 16).forEach((l, i) => txt(l.s, W / 2, 132 + i * 11, 1, '#ffffff'));
   menuR += (STAGE_R[Math.floor(time * 1.2) % 4] - menuR) * 0.2;
   drawPuffer(50, 180, menuR, false);
-  drawFishAt('kopekbaligi', STAGE_R[1] - 2, 138, 180, false, 0);
+  drawFishAt('kopekbaligi', 2, 132, 182, false, 0);
   button(BTN.play, L('play'), 2);
   button(BTN.shop, L('shop'));
   button(BTN.howto, L('howto'));
@@ -1180,8 +907,7 @@ function drawShop() {
     const b = cardRect(i), cx = b.x + b.w / 2, sel = i === skin, have = owned.includes(sk.id);
     if (sel) rrect(b.x - 3, b.y - 3, b.w + 6, b.h + 6, '#ffe066');
     panel(b.x, b.y, b.w, b.h);
-    const sp = pufferSprite(STAGE_R[1], Math.floor(time * 5) & 1, i, false);
-    g.drawImage(sp.c, Math.round(cx + 4 - sp.ox), b.y + 22 - sp.oy);
+    drawPufferAt(cx + 2, b.y + 22, STAGE_R[1], i, false);
     txt(sk[lang], cx, b.y + 42, 1, '#ffffff');
     if (sel) txt(L('selected'), cx, b.y + 53, 1, '#7ee08f');
     else if (have) txt(L('select'), cx, b.y + 53, 1, '#9fd4ff');
@@ -1274,13 +1000,10 @@ function render() {
 // Sprite'lar: seçili görünüm ve ilk bölge hemen, gerisi her karede birkaç tane.
 const bakeQueue = [];
 function queuePuffer(si) {
-  for (let R = R_MIN; R <= R_MAX; R++) for (const f of [0, 1]) bakeQueue.unshift(() => pufferSprite(R, f, si, false));
+  for (let R = 4; R <= 21; R++) for (const f of [0, 1]) bakeQueue.unshift(() => puffImg(R, f, si, false));
 }
-for (let R = R_MIN; R <= R_MAX; R++) for (const f of [0, 1]) pufferSprite(R, f, skin, false);
-for (const sp of SPECIES) for (const c of sp.food ? [0] : sp.cls) for (const f of [0, 1]) {
-  if (sp.zone === 0) fishSprite(sp.id, sizeOf(sp, c), f);
-  else bakeQueue.push(() => fishSprite(sp.id, sizeOf(sp, c), f));
-}
+queuePuffer(skin);
+for (const sp of SPECIES) for (const f of [0, 1]) bakeQueue.push(() => FishArt.sprite(sp.id, f));
 
 let lastT = performance.now();
 function loop(now) {
