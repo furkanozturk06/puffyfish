@@ -326,7 +326,7 @@ function fromSpans(w, h, parts, px) {
   const g = new Grid(w, h);
   for (const [key, str] of parts) str.split(';').forEach(r => {
     const [y, xs] = r.split(':');
-    xs.trim().split(' ').forEach(seg => { const [a, b] = seg.split('-').map(Number); for (let x = a; x <= (b ?? a); x++) g.set(x, +y, key); });
+    xs.trim().split(' ').forEach(seg => { const [a, b] = seg.split('-').map(Number); for (let x = a; x <= (b === undefined ? a : b); x++) g.set(x, +y, key); });
   });
   for (const [x, y, k] of px || []) g.over(x, y, k);
   return g;

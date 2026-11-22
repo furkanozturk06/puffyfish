@@ -16,6 +16,15 @@
 <body>
 <div id="safe"></div>
 <canvas id="c"></canvas>
+<script>
+// Bir hata olursa ekranda göster (eski tarayıcılar da anlasın diye eski sözdizimiyle).
+window.onerror = function (msg, src, line, col) {
+  var d = document.createElement('pre');
+  d.style.cssText = 'position:fixed;left:0;top:0;right:0;margin:0;padding:12px;background:#5a0d0d;color:#fff;font:12px monospace;z-index:99;white-space:pre-wrap';
+  d.textContent = 'HATA: ' + msg + '\n' + (src || '').split('/').pop() + ':' + line + ':' + col + '\n' + navigator.userAgent;
+  document.body.appendChild(d);
+};
+</script>
 <script src="fishart.js"></script>
 <script>
 'use strict';
