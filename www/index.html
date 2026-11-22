@@ -19,8 +19,8 @@
 <script>
 'use strict';
 // Oyun 320x180 piksel çözünürlükte çizilir, ekrana keskin piksellerle büyütülür.
-const W = 320, H = 180, SAND_Y = 166;
-const PX = 76, PY = 90;            // balon balığının yeri
+const W = 180, H = 320, SAND_Y = 306;
+const PX = 58, PY = 175;           // balon balığının yeri
 
 // Kademeler: 0 = sönük (yem yiyebilir), 1-5 şişkin.
 // Her dokunuş 1 kademe şişirir; dokunulmazsa DEFLATE_SECS'te bir 1 kademe söner.
@@ -28,9 +28,9 @@ const STAGE_R = [7, 13, 19, 26, 33, 41];
 const MAX_STAGE = 5, DEFLATE_SECS = 0.45;
 const R_MIN = STAGE_R[0], R_MAX = STAGE_R[MAX_STAGE];
 const FOOD_CHANCE = 0.4;
-const HUNGER_SECS = 14;            // hiç yemeden dayanma süresi
+const HUNGER_SECS = 22;            // hiç yemeden dayanma süresi
 const FOOD = 0.4;                  // bir yemin doldurduğu açlık oranı
-const SPEED_START = 76, SPEED_MAX = 150, SPEED_STEP = 1.2;
+const SPEED_START = 46, SPEED_MAX = 90, SPEED_STEP = 0.7;
 const COMBO_MAX = 5;               // art arda kılpayı çarpanının üst sınırı
 const COIN_PER_SCORE = 4;          // her 4 puan 1 altın
 
@@ -737,7 +737,7 @@ function puff() {
 // ---------- Eğitim ----------
 // Her adımda balık yaklaşınca, oyuncu doğru kademeye gelene kadar zaman durur.
 // Yazı ekranları ekrana dokununca geçilir. Yanlış hamlede ölünmez, adım tekrarlanır.
-const TUT_SPEED = 70;
+const TUT_SPEED = 42;
 const TUT = [
   { k: 't0', dur: 3.2 },
   { k: 't1', id: 'levrek', cls: 2, hand: 'tap', need: () => stage >= 2 },
@@ -773,7 +773,7 @@ function tutUpdate(dt) {
   tut.t += dt;
   let target = 1;
   if (tut.phase === 'go') {
-    if (!tut.f.done && tut.f.x - tut.f.front <= PX + r + 60 && !st.need()) target = 0;
+    if (!tut.f.done && tut.f.x - tut.f.front <= PX + r + 40 && !st.need()) target = 0;
   } else if (tut.t > tut.dur) {
     if (tut.phase === 'fail') spawnTut();
     else if (++tut.i < TUT.length) spawnTut();
@@ -785,15 +785,15 @@ function tutUpdate(dt) {
 // ---------- Giriş ----------
 const BTN = {
   lang:  { x: 4, y: 4, w: 24, h: 16 },
-  play:  { x: W / 2 - 50, y: 72, w: 100, h: 26 },
-  shop:  { x: W / 2 - 50, y: 104, w: 100, h: 18 },
-  howto: { x: W / 2 - 50, y: 128, w: 100, h: 18 },
+  play:  { x: W / 2 - 50, y: 212, w: 100, h: 26 },
+  shop:  { x: W / 2 - 50, y: 246, w: 100, h: 18 },
+  howto: { x: W / 2 - 50, y: 270, w: 100, h: 18 },
   back:  { x: 4, y: 4, w: 44, h: 16 },
   skip:  { x: W - 44, y: 4, w: 40, h: 16 },
-  retry: { x: 82, y: 138, w: 74, h: 20 },
-  home:  { x: 164, y: 138, w: 74, h: 20 },
+  retry: { x: 12, y: 214, w: 76, h: 20 },
+  home:  { x: 92, y: 214, w: 76, h: 20 },
 };
-const cardRect = i => ({ x: 14 + (i % 3) * 100, y: 32 + Math.floor(i / 3) * 68, w: 92, h: 64 });
+const cardRect = i => ({ x: 8 + (i % 2) * 88, y: 48 + Math.floor(i / 2) * 74, w: 76, h: 66 });
 const inside = (p, b) => p && p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h;
 function toLow(e) {
   const b = canvas.getBoundingClientRect();
@@ -1035,11 +1035,11 @@ function drawBadges() {
     }
     const close = f.x - f.front - (PX + r) < 90;
     const bounce = danger && close ? -Math.round(Math.abs(Math.sin(time * 10)) * 2) : 0;
-    const y = Math.max(30, Math.round(f.y + Math.sin(time * 2 + f.ph) * 1.5 - f.s * 1.25 - 10)) + bounce;
+    const y = Math.max(64, Math.round(f.y + Math.sin(time * 2 + f.ph) * 1.5 - f.s * 1.25 - 10)) + bounce;
     g.drawImage(sp.c, Math.round(f.x - f.hl * 0.55) - 6, y - 6);
   }
   if (!eaten) {
-    const by = Math.max(30, Math.round(PY - r * 0.8 - 6));
+    const by = Math.max(64, Math.round(PY - r * 0.8 - 6));
     g.drawImage(BADGE.me[stage].c, Math.round(PX + r * 0.8) - 2, by - 6);
   }
 }
@@ -1075,7 +1075,7 @@ function drawWorld() {
   g.globalAlpha = 1;
 
   if (rays > 0.02) for (let i = 0; i < 3; i++) {
-    const x0 = 70 + i * 105 + Math.sin(time * 0.25 + i * 2) * 10;
+    const x0 = W * (0.25 + i * 0.35) + 40 + Math.sin(time * 0.25 + i * 2) * 10;
     for (let s = 0; s < 6; s++) {
       g.fillStyle = 'rgba(255,255,255,' + (0.075 * rays * (1 - s / 6)).toFixed(3) + ')';
       for (let y = s * 28; y < (s + 1) * 28 && y < SAND_Y; y++) g.fillRect(Math.round(x0 - y * 0.45), y, Math.round(10 + y * 0.12), 1);
@@ -1114,8 +1114,8 @@ function drawWorld() {
 function drawHud() {
   const tutorial = state === 'tut';
   if (state !== 'dead' && !tutorial) {
-    txt(String(score), W / 2, 7, 3, '#ffffff', '#dcecff');
-    if (combo >= 2) txt(L('combo') + ' X' + Math.min(combo, COMBO_MAX), W / 2, 34, comboPulse > 0 ? 2 : 1, '#ffe066', '#f5a623');
+    txt(String(score), W / 2, 26, 3, '#ffffff', '#dcecff');
+    if (combo >= 2) txt(L('combo') + ' X' + Math.min(combo, COMBO_MAX), W / 2, 54, comboPulse > 0 ? 2 : 1, '#ffe066', '#f5a623');
   }
 
   const ic = fishSprite('hamsi', 3, 0);
@@ -1129,35 +1129,51 @@ function drawHud() {
     g.fillStyle = lowH ? '#ff9d8a' : '#a6f5b5'; g.fillRect(bx, by, fw, 2);
   }
 
-  if (!tutorial) {
-    txt(L('z' + zone), W - 6, 7, 1, '#ffffff', null, 'right');
-    if (best) txt(L('best') + ' ' + best, W - 6, 19, 1, '#bfe0ff', null, 'right');
-  }
+  if (!tutorial && best) txt(L('best') + ' ' + best, W - 6, 8, 1, '#bfe0ff', null, 'right');
   if (banner) {
     g.globalAlpha = Math.max(0, Math.min(1, banner.age * 3, (2.2 - banner.age) * 2));
-    txt(banner.text, W / 2, 54, 2, '#ffffff', '#bfe0ff');
+    txt(banner.text, W / 2, 84, 2, '#ffffff', '#bfe0ff');
     g.globalAlpha = 1;
   }
 }
 
 function drawMenu() {
   button(BTN.lang, L('lang'));
-  drawCoins(W - 6, 7, coins);
-  if (best) txt(L('best') + ' ' + best, W - 6, 19, 1, '#ffffff', null, 'right');
-  txt(L('title'), W / 2, 18, 4, '#ffe066', '#f5a623');
-  txt(L('tagline'), W / 2, 58, 1, '#ffffff');
+  drawCoins(W - 6, 8, coins);
+  if (best) txt(L('best') + ' ' + best, W - 6, 20, 1, '#ffffff', null, 'right');
+  const [t1, t2] = L('title').split(' ');
+  txt(t1, W / 2, 40, 5, '#ffe066', '#f5a623');
+  txt(t2, W / 2, 84, 5, '#ffe066', '#f5a623');
+  wrap([L('tagline')], W - 16).forEach((l, i) => txt(l.s, W / 2, 132 + i * 11, 1, '#ffffff'));
   menuR += (STAGE_R[Math.floor(time * 1.2) % 4] - menuR) * 0.2;
-  drawPuffer(58, 122, menuR, false);
-  drawFishAt('kopekbaligi', STAGE_R[1] - 2, 268, 122, false, 0);
+  drawPuffer(50, 180, menuR, false);
+  drawFishAt('kopekbaligi', STAGE_R[1] - 2, 138, 180, false, 0);
   button(BTN.play, L('play'), 2);
   button(BTN.shop, L('shop'));
   button(BTN.howto, L('howto'));
-  if (innerHeight > innerWidth && time % 1 < 0.7) txt(L('rotate'), W / 2, 154, 1, '#ffe066', '#f5a623');
+}
+
+// Uzun yazıları dar ekrana sığacak şekilde satırlara böler; k = kaçıncı kaynak satırdan geldiği.
+const WRAP = new Map();
+function wrap(lines, maxW) {
+  const key = lines.join('|') + maxW;
+  if (WRAP.has(key)) return WRAP.get(key);
+  const out = [];
+  lines.forEach((ln, k) => {
+    let cur = '';
+    for (const w of ln.split(' ')) {
+      const t = cur ? cur + ' ' + w : w;
+      if (cur && textSprite(t, 1, '#ffffff').w > maxW) { out.push({ s: cur, k }); cur = w; } else cur = t;
+    }
+    out.push({ s: cur, k });
+  });
+  WRAP.set(key, out);
+  return out;
 }
 
 function drawShop() {
   g.fillStyle = 'rgba(4,16,34,0.35)'; g.fillRect(0, 0, W, H);
-  txt(L('shop'), W / 2, 9, 2, '#ffe066', '#f5a623');
+  txt(L('shop'), W / 2, 26, 2, '#ffe066', '#f5a623');
   button(BTN.back, L('back'));
   drawCoins(W - 6, 9, coins);
   SKINS.forEach((sk, i) => {
@@ -1175,29 +1191,30 @@ function drawShop() {
       g.drawImage(COIN.c, Math.round(cx + 5 - w / 2 - 11), b.y + 52);
     }
   });
-  if (shopMsg) txt(shopMsg.text, W / 2, 170, 1, shopMsg.good ? '#7ee08f' : '#ff8a6e');
+  if (shopMsg) txt(shopMsg.text, W / 2, 280, 1, shopMsg.good ? '#7ee08f' : '#ff8a6e');
 }
 
 function drawTut() {
   const st = TUT[tut.i];
-  txt(L('howtoTitle'), W / 2, 7, 1, '#ffffff');
+  txt(L('howtoTitle'), W / 2, 26, 1, '#ffffff');
   for (let k = 1; k < TUT.length; k++) {
     const x = W / 2 - 14 + (k - 1) * 10;
-    rrect(x - 1, 17, 6, 6, INK);
-    g.fillStyle = k <= tut.i ? '#ffe066' : '#3b5670'; g.fillRect(x, 18, 4, 4);
+    rrect(x - 1, 37, 6, 6, INK);
+    g.fillStyle = k <= tut.i ? '#ffe066' : '#3b5670'; g.fillRect(x, 38, 4, 4);
   }
   button(BTN.skip, L('skip'));
   const bob = Math.round(Math.sin(time * 6) * 2);
   if (tut.phase === 'intro') drawArrow(PX, PY - r - 8 + bob, false);
-  if (tut.phase === 'go' && !st.need()) drawHand(296, 126, st.hand);
+  if (tut.phase === 'go' && !st.need()) drawHand(W - 22, 100, st.hand);
   if (tut.phase === 'ok' && st.arrow) drawArrow(51, 17 - bob, true);
   if (tut.lines) {
-    panel(32, 136, 256, 29);
-    const two = tut.lines.length > 1, fail = tut.phase === 'fail';
-    txt(tut.lines[0], W / 2, two ? 142 : 147, 1, fail ? '#ff8a6e' : '#ffe066', fail ? '#e5533c' : '#f5a623');
-    if (two) txt(tut.lines[1], W / 2, 154, 1, '#ffffff');
+    const fail = tut.phase === 'fail', rows = wrap(tut.lines, W - 20), h = 10 + rows.length * 11, py = 234;
+    panel(6, py, W - 12, h);
+    rows.forEach((l, i) => txt(l.s, W / 2, py + 6 + i * 11, 1,
+      l.k === 0 ? (fail ? '#ff8a6e' : '#ffe066') : '#ffffff', l.k === 0 ? (fail ? '#e5533c' : '#f5a623') : null));
     if (tut.phase !== 'go' && tut.t > 0.4 && time % 0.8 < 0.5) {      // "dokun, devam" işareti
-      g.fillStyle = '#e07b39'; g.fillRect(280, 159, 5, 1); g.fillRect(281, 160, 3, 1); g.fillRect(282, 161, 1, 1);
+      const ix = W - 20, iy = py + h - 7;
+      g.fillStyle = '#e07b39'; g.fillRect(ix, iy, 5, 1); g.fillRect(ix + 1, iy + 1, 3, 1); g.fillRect(ix + 2, iy + 2, 1, 1);
     }
   }
 }
@@ -1207,17 +1224,19 @@ function drawDead() {
   g.fillStyle = 'rgba(4,14,28,' + (0.55 * Math.min(1, e / 400)).toFixed(3) + ')';
   g.fillRect(0, 0, W, H);
   if (e < 300) return;
-  txt(deadMsg, W / 2, 18, 3, '#ff8a6e', '#e5533c');
-  panel(80, 48, 160, 84);
-  txt(L('score'), 94, 57, 1, '#e07b39', null, 'left');
-  txt(String(score), 226, 55, 2, '#ffffff', '#dcecff', 'right');
-  txt(L('best'), 94, 78, 1, '#e07b39', null, 'left');
-  if (newBest) txt(L('new'), 136, 78, 1, '#ff5d4a', null, 'left');
-  txt(String(best), 226, 76, 2, '#ffffff', '#dcecff', 'right');
-  txt(L('z' + zone) + (maxCombo >= 2 ? '  ·  ' + L('combo') + ' X' + maxCombo : ''), W / 2, 100, 1, '#5aa0cf');
+  txt(deadMsg, W / 2, 62, 3, '#ff8a6e', '#e5533c');
+  const px = 10, pr = W - 22;
+  panel(px, 98, W - 20, 104);
+  txt(L('score'), px + 12, 110, 1, '#e07b39', null, 'left');
+  txt(String(score), pr, 108, 2, '#ffffff', '#dcecff', 'right');
+  txt(L('best'), px + 12, 134, 1, '#e07b39', null, 'left');
+  if (newBest) txt(L('new'), px + 12, 146, 1, '#ff5d4a', null, 'left');
+  txt(String(best), pr, 132, 2, '#ffffff', '#dcecff', 'right');
+  wrap([L('z' + zone) + (maxCombo >= 2 ? '  ·  ' + L('combo') + ' X' + maxCombo : '')], W - 36)
+    .forEach((l, i) => txt(l.s, W / 2, 162 + i * 10, 1, '#5aa0cf'));
   const s = '+' + earned, w = textSprite(s, 1, '#ffe066').w;
-  txt(s, W / 2 + 6, 114, 1, '#ffe066');
-  g.drawImage(COIN.c, Math.round(W / 2 + 6 - w / 2 - 11), 113);
+  txt(s, W / 2 + 6, 186, 1, '#ffe066');
+  g.drawImage(COIN.c, Math.round(W / 2 + 6 - w / 2 - 11), 185);
   if (e > 600) { button(BTN.retry, L('retry')); button(BTN.home, L('home')); }
 }
 
@@ -1241,7 +1260,8 @@ function render() {
   if (state !== 'dead') drawBadges();
   for (const p of pops) {
     g.globalAlpha = Math.max(0, Math.min(1, (0.9 - p.age) * 4));
-    txt(p.text, PX, Math.max(46, PY - r - 16) - p.age * 22 + p.dy, p.sc, p.c1, p.c2);
+    const sc = p.sc > 1 && textSprite(p.text, 2, p.c1, p.c2).w > W - 4 ? 1 : p.sc;
+    txt(p.text, PX, Math.max(70, PY - r - 16) - p.age * 22 + p.dy, sc, p.c1, p.c2);
   }
   g.globalAlpha = 1;
   g.restore();
@@ -1272,8 +1292,8 @@ function loop(now) {
   render();
   if (paused) {
     g.fillStyle = 'rgba(4,14,28,0.6)'; g.fillRect(0, 0, W, H);
-    txt(L('paused'), W / 2, 70, 2, '#ffffff', '#bfe0ff');
-    if (time % 1 < 0.7) txt(L('resume'), W / 2, 100, 1, '#ffe066', '#f5a623');
+    txt(L('paused'), W / 2, H / 2 - 20, 2, '#ffffff', '#bfe0ff');
+    if (time % 1 < 0.7) txt(L('resume'), W / 2, H / 2 + 10, 1, '#ffe066', '#f5a623');
   }
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(low, 0, 0, canvas.width, canvas.height);
