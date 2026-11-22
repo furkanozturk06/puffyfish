@@ -364,7 +364,7 @@ const CUSTOM = {
   },
   // tStyle: a = dalgalı şeritler, b = fırfırlı perde + ince uzun dokunaçlar, c = kısa kıvrık dokunaçlar
   denizanasi(s) {
-    const R = s.R || 6, st = s.tStyle || 'o', w = 2 * R + 7, h = R + (st === 'c' ? 9 : 15), g = new Grid(w, h), cx = R + 3;
+    const R = s.R || 6, st = s.tStyle || 'c', w = 2 * R + 7, h = R + (st === 'c' ? 9 : 15), g = new Grid(w, h), cx = R + 3;
     for (let y = 0; y <= R; y++) for (let x = 0; x < w; x++) if ((x + .5 - cx - .5) ** 2 / (R + .5) ** 2 + (y + .5 - R - 1) ** 2 / (R + .5) ** 2 <= 1 && y >= 1) g.set(x, y, 'body');
     for (let x = cx - R; x <= cx + R + 1; x++) g.set(x, R + 1, 'rim');
     const line = (x0, len, amp, ph, thick, key) => {
