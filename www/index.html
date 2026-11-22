@@ -85,7 +85,7 @@ const SKINS = [
   { id: 'havali', price: 1000, tr: 'HAVALI', en: 'COOL',   p: { body: '#39c6b8', lite: '#9ff0e6', belly: '#e3fffa', fin: '#1f8f86', spike: '#6fe0d4', glasses: true } },
   { id: 'fiyonk', price: 1100, tr: 'FİYONK', en: 'BOW',    p: { body: '#c9a4ff', lite: '#e8dbff', belly: '#f6eeff', fin: '#9b6fe0', spike: '#b88cff', bow: true } },
   { id: 'lav',    price: 1200, tr: 'LAV',    en: 'LAVA',   p: { body: '#4a4450', lite: '#6e6876', belly: '#6a6270', fin: '#ff5a1a', spike: '#ff7a1a', spot: '#ff9a2a', spots: true } },
-  { id: 'elmas',  price: 1500, tr: 'ELMAS',  en: 'DIAMOND', p: { body: '#7fe8ff', lite: '#ffffff', belly: '#e8fdff', fin: '#3cb8e0', spike: '#b8f4ff', sparkle: true, glasses: true } },
+  { id: 'kovboy', price: 1500, tr: 'KOVBOY', en: 'COWBOY', p: { body: '#ecc58f', lite: '#f8e2bd', belly: '#fff4e0', fin: '#a8703a', spike: '#d8a868', hat: true } },
 ];
 const SHOP_PAGE = 6;
 const DEAD_SKIN = { body: '#b8bec6', shade: '#959ca6', lite: '#d4d8dd', belly: '#e6e9ec', fin: '#8f97a1', spot: '#7b828c', spike: '#a6adb6' };
@@ -464,7 +464,8 @@ onNative('App', 'backButton', () => {
 
 // ---------- Reklamlar (AdMob) ----------
 // Şimdilik Google'ın deneme reklam kimlikleri; yayından önce kendi AdMob kimliklerinle değiştir.
-const AD_IDS = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent)
+const IOS = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+const AD_IDS = IOS
   ? { inter: 'ca-app-pub-3940256099942544/4411468910', reward: 'ca-app-pub-3940256099942544/1712485313' }
   : { inter: 'ca-app-pub-3940256099942544/1033173712', reward: 'ca-app-pub-3940256099942544/5224354917' };
 const INTER_EVERY = 2;              // kaç oyunda bir geçiş reklamı
@@ -482,8 +483,23 @@ function adFinished() {
   const done = adDone; adDone = null; adBusy = false;
   if (done) done(adRewarded);
 }
+// Reklamlardan önce izin (Avrupa vb. için Google'ın izin penceresi; gerekmeyen ülkelerde hiçbir şey çıkmaz).
+// iOS'ta ardından takip izni sorulur. İzin vermeyen oyuncuya kişiselleştirilmemiş reklam gider.
+let privacyRequired = false;
+function setupAds() {
+  native('AdMob', 'requestConsentInfo', {})
+    .then(info => (info && info.isConsentFormAvailable && info.status === 'REQUIRED'
+      ? native('AdMob', 'showConsentForm').then(after => after || info) : info))
+    .then(info => {
+      privacyRequired = !!(info && info.privacyOptionsRequirementStatus === 'REQUIRED');
+      if (info && info.canRequestAds === false) return;
+      return (IOS ? native('AdMob', 'requestTrackingAuthorization') : Promise.resolve())
+        .then(() => native('AdMob', 'initialize', {}))
+        .then(() => { prepInter(); prepReward(); });
+    });
+}
 if (isNative) {
-  native('AdMob', 'initialize', {}).then(() => { prepInter(); prepReward(); });
+  setupAds();
   onNative('AdMob', 'interstitialAdDismissed', () => { prepInter(); adFinished(); });
   onNative('AdMob', 'interstitialAdFailedToShow', () => { prepInter(); adFinished(); });
   onNative('AdMob', 'onRewardedVideoAdReward', () => { adRewarded = true; });
@@ -633,6 +649,7 @@ function tutUpdate(dt) {
 // ---------- Giriş ----------
 const BTN = {
   lang:  { x: 4, y: 4, w: 24, h: 16 },
+  privacy: { x: 30, y: 4, w: 16, h: 16 },
   play:  { x: W / 2 - 50, y: 212, w: 100, h: 26 },
   shop:  { x: W / 2 - 50, y: 246, w: 100, h: 18 },
   howto: { x: W / 2 - 50, y: 270, w: 100, h: 18 },
@@ -663,7 +680,8 @@ function tap(p) {
   if (adBusy) return;
   if (paused) { paused = false; return; }
   if (state === 'menu') {
-    if (inside(p, BTN.lang)) { lang = lang === 'tr' ? 'en' : 'tr'; save('sis_lang', lang); document.title = L('doc'); click(); }
+    if (privacyRequired && inside(p, BTN.privacy)) { click(); native('AdMob', 'showPrivacyOptionsForm'); }
+    else if (inside(p, BTN.lang)) { lang = lang === 'tr' ? 'en' : 'tr'; save('sis_lang', lang); document.title = L('doc'); click(); }
     else if (inside(p, BTN.shop)) { state = 'shop'; shopMsg = null; shopPage = Math.floor(skin / SHOP_PAGE); refreshAdDay(); click(); }
     else if (inside(p, BTN.howto)) { click(); startTutorial(); }
     else if (inside(p, BTN.play) || !p) { click(); if (tutSeen) start(); else startTutorial(); }
@@ -844,6 +862,13 @@ function button(b, label, sc) {
   panel(b.x, b.y, b.w, b.h);
   txt(label, b.x + b.w / 2, b.y + Math.round((b.h - 7 * sc) / 2), sc, sc > 1 ? '#ff9a3c' : '#e07b39', sc > 1 ? '#e0602a' : null);
 }
+// Gizlilik ayarları için küçük kağıt simgesi (köşesi kıvrık, üstünde yazı çizgileri)
+function drawPaper(x, y) {
+  g.fillStyle = INK; g.fillRect(x - 1, y - 1, 9, 13);
+  g.fillStyle = '#f6e7bf'; g.fillRect(x, y, 7, 11);
+  g.fillStyle = '#d08a3e'; g.fillRect(x + 5, y, 2, 2);
+  g.fillStyle = '#e07b39'; for (const ly of [3, 5, 7]) g.fillRect(x + 1, y + ly, ly === 7 ? 3 : 5, 1);
+}
 function drawCoins(xr, y, n) {
   const s = String(n), sp = textSprite(s, 1, '#ffe066');
   txt(s, xr, y, 1, '#ffe066', null, 'right');
@@ -985,7 +1010,7 @@ function drawHud() {
     if (combo >= 2) txt(L('combo') + ' X' + Math.min(combo, COMBO_MAX), W / 2, 54, comboPulse > 0 ? 2 : 1, '#ffe066', '#f5a623');
   }
 
-  drawFishAt('hamsi', 1, 12, 11, false, 0);
+  drawPufferAt(11, 11, 8, skin, false, 1);   // açlık çubuğunun yanında bizim balık (küçük)
   const bx = 24, by = 8, bw = 54, lowH = hunger < 0.3;
   rrect(bx - 1, by - 1, bw + 2, 8, INK);
   g.fillStyle = '#1b3850'; g.fillRect(bx, by, bw, 6);
@@ -1005,6 +1030,7 @@ function drawHud() {
 
 function drawMenu() {
   button(BTN.lang, L('lang'));
+  if (privacyRequired) drawPaper(BTN.privacy.x + 4, BTN.privacy.y + 2);
   drawCoins(W - 6, 8, coins);
   if (best) txt(L('best') + ' ' + best, W - 6, 20, 1, '#ffffff', null, 'right');
   const [t1, t2] = L('title').split(' ');

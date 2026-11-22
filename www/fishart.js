@@ -706,6 +706,16 @@ function boldPuffer(R, frame, skin) {
     for (let d = 1; d <= bs; d++) for (let y = -Math.round(d * .75); y <= Math.round(d * .75); y++) { set(bx - 1 - d, by + y, 'B'); set(bx + 1 + d, by + y, 'B'); }
     for (let y = -1; y <= 1; y++) for (let x = -1; x <= 1; x++) set(bx + x, by + y, 'b');
   }
+  // Kovboy şapkası: geniş kenar, bantlı tepe, tepede çukur
+  if (p.hat) {
+    const yb = Math.round(cy - R * .86), bx0 = Math.round(cx - R * .62), bx1 = Math.round(cx + R * .78);
+    const tx0 = Math.round(cx - R * .3), tx1 = Math.round(cx + R * .46), th = Math.max(3, Math.round(R * .5));
+    for (let x = bx0; x <= bx1; x++) set(x, yb, 'T');
+    set(bx0, yb - 1, 'T'); set(bx1, yb - 1, 'T');
+    for (let y = 1; y <= th; y++) for (let x = tx0; x <= tx1; x++) set(x, yb - y, y === 1 ? 'n' : 'T');
+    const mid = Math.round((tx0 + tx1) / 2);
+    set(mid, yb - th, null);
+  }
   if (p.crown) {
     const cw = Math.max(5, Math.round(R * .9)) | 1, x0 = Math.round(cx + R * .1 - cw / 2), yb = cy - R - 1;
     for (let x = 0; x < cw; x++) { set(x0 + x, yb, 'G'); set(x0 + x, yb - 1, 'G'); }
@@ -715,7 +725,7 @@ function boldPuffer(R, frame, skin) {
   const out = g.map(r => r.slice());
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (!g[y][x] && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g[y + dy] && g[y + dy][x + dx])) out[y][x] = 'K';
   const pal = { Y: p.body || '#fad23c', C: p.belly || '#fff4cf', H: p.lite || '#fffbe6', O: p.fin || '#f39a2a', S: p.spike || p.fin || '#f39a2a',
-    W: '#ffffff', K: BOLD_INK, L: '#f07a2a', P: '#ff9b7d', G: '#ffe066', R: '#e0303a', D: p.spot || BOLD_INK, B: '#ff5fa2', b: '#d63a7e' };
+    W: '#ffffff', K: BOLD_INK, L: '#f07a2a', P: '#ff9b7d', G: '#ffe066', R: '#e0303a', D: p.spot || BOLD_INK, B: '#ff5fa2', b: '#d63a7e', T: '#8a5a2b', n: '#4a2c10' };
   if (p.dead) { pal.Y = '#b8bec6'; pal.C = '#e6e9ec'; pal.H = '#d4d8dd'; pal.O = pal.S = '#8f97a1'; pal.L = '#9ca3ac'; pal.P = '#b8bec6'; }
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   const c = cv.getContext('2d');
