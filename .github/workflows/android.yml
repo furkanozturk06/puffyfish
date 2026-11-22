@@ -31,7 +31,7 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -Pvc=${{ github.run_number }}
           cp app/build/outputs/apk/debug/app-debug.apk ../puffyfish-${{ github.run_number }}.apk
 
       - name: Publish APK
