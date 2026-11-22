@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Puffy Fish</string>
+    <string name="title_activity_main">Puffy Fish</string>
+    <string name="package_name">com.furkanozturk.puffyfish</string>
+    <string name="custom_url_scheme">com.furkanozturk.puffyfish</string>
+</resources>
