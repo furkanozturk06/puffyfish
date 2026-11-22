@@ -800,7 +800,8 @@ function puffImg(R, frame, si, dead) {
 function drawPufferAt(x, y, rad, si, dead, k) {
   k = k || 2;
   const R = Math.max(4, Math.round(rad / 2)), im = puffImg(R, Math.floor(time * 5) & 1, si, dead);
-  const Ls = R > 4 ? (R >= 9 ? 2 : 1) : 0, pad = Ls + 3, cx = R + pad + 3, cy = R + pad + 1;
+  const Ls = R > 4 ? (R >= 9 ? 2 : 1) : 0, pad = Ls + 3;
+  const [cx, cy] = im.center || [R + pad + 3, R + pad + 1];   // çizim kendi merkezini söylüyorsa onu kullan
   g.drawImage(im, Math.round(x - cx * k), Math.round(y - cy * k), im.width * k, im.height * k);
 }
 function drawPuffer(x, y, rad, dead) { drawPufferAt(x, y + Math.sin(time * 2.5) * 1.5, rad, skin, dead); }

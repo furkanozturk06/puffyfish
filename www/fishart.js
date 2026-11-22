@@ -5,6 +5,9 @@
 'use strict';
 
 const INK = '#141c2b';
+// Çizim tarzı: 'pixel' (renkli kontur, kıvrımlı gölge) ya da 'bold' (siyah kalın kontur, düz renkler, iri göz).
+let STYLE = 'bold';
+const BOLD_INK = '#1b1b1f';
 const hx = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 const toHex = a => '#' + a.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
 const mix = (a, b, t) => { const A = hx(a), B = hx(b); return toHex(A.map((v, i) => v + (B[i] - v) * t)); };
@@ -115,8 +118,24 @@ function eyeShape(e, pk) {
   if (e >= 7) { const tx = Math.floor(px + pr * .55), ty = Math.floor(py + pr * .5); if (rows[ty] && rows[ty][tx] === 'k') rows[ty][tx] = 'h'; }
   return rows.map(r => r.join(''));
 }
+function boldEyeShape(e) {
+  e = Math.max(4, e);
+  const rows = [], c = e / 2, pw = Math.max(1, Math.round(e * 0.3)), ph = Math.max(2, Math.round(e * 0.62));
+  const px = Math.max(1, Math.round(e * 0.18)), py = Math.round((e - ph) / 2 + e * 0.05);
+  for (let y = 0; y < e; y++) {
+    let r = '';
+    for (let x = 0; x < e; x++) {
+      const inE = (x + .5 - c) ** 2 + (y + .5 - c) ** 2 <= c * c + .35;
+      r += !inE ? '.' : (x >= px && x < px + pw && y >= py && y < py + ph) ? 'k' : 'w';
+    }
+    rows.push(r);
+  }
+  return rows;
+}
 function drawEye(g, ex, ey, e, angry) {
-  const rows = eyeShape(e), mine = new Set();
+  const bold = STYLE === 'bold';
+  if (bold) { const big = Math.max(4, Math.round(e * 1.15)); ex -= Math.floor((big - e) / 2); ey -= Math.floor((big - e) / 2); e = big; }
+  const rows = bold ? boldEyeShape(e) : eyeShape(e), mine = new Set();
   rows.forEach((r, y) => [...r].forEach((ch, x) => {
     if (ch === '.') return;
     g.paint(ex + x, ey + y, ch === 'k' ? 'k' : 'w', 'eyew');
@@ -127,12 +146,12 @@ function drawEye(g, ex, ey, e, angry) {
     const [x, y] = key.split(',').map(Number);
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const nx = x + dx, ny = y + dy;
-      if (!mine.has(nx + ',' + ny) && g.get(nx, ny)) g.over(nx, ny, 'eo');
+      if (!mine.has(nx + ',' + ny) && g.get(nx, ny)) g.over(nx, ny, bold ? 'k' : 'eo');
     }
   }
   if (angry) {
     for (let x = 0; x < e; x++) if (rows[0][x] !== '.') g.over(ex + x, ey, 'lid');
-    for (let x = -1; x <= e; x++) g.over(ex + x, x < e / 2 ? ey : ey - 1, 'out');
+    for (let x = -1; x <= e; x++) g.over(ex + x, x < e / 2 ? ey : ey - 1, bold ? 'k' : 'out');
   }
 }
 
@@ -591,7 +610,8 @@ function render(b, frame) {
   }
   let minX = w, maxX = 0; const top = [], bot = [];
   for (let x = 0; x < w; x++) { top[x] = -1; for (let y = 0; y < h; y++) if (K[y][x] === 'body') { if (top[x] < 0) top[x] = y; bot[x] = y; minX = Math.min(minX, x); maxX = Math.max(maxX, x); } }
-  const T = [[0.16, 'lite'], [0.42, 'back'], [0.68, 'mid'], [2, 'bellyc']], big = h >= 13;
+  const bold = STYLE === 'bold';
+  const T = bold ? [[0.34, 'back'], [0.64, 'mid'], [2, 'bellyc']] : [[0.16, 'lite'], [0.42, 'back'], [0.68, 'mid'], [2, 'bellyc']], big = !bold && h >= 13;
   const col = Array.from({ length: h }, () => Array(w).fill(null));
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const k = K[y][x];
@@ -602,19 +622,20 @@ function render(b, frame) {
       if (big && x % 2 === 0 && y % 2 === 0 && i < T.length - 1 && T[i][0] - t < 0.04) i++;
       let c = T[i][1];
       if (c === 'lite' && u > 0.6) c = 'back';
+      if (bold && c === 'back' && u > 0.12 && u < 0.4 && t > 0.08 && t < 0.24) c = 'lite';   // sırtta tek parlama
       if (!(K[y + 1] && K[y + 1][x] === 'body')) c = 'shade';
       col[y][x] = pal[c];
-    } else if (k === 'fin') col[y][x] = x % 2 === 0 ? pal.fin2 : pal.fin;
+    } else if (k === 'fin') col[y][x] = bold ? pal.fin : x % 2 === 0 ? pal.fin2 : pal.fin;
     else if (k === 'eyew') col[y][x] = '#ffffff';
     else col[y][x] = pal[k] || pal.fin;
-    if (O[y][x]) col[y][x] = O[y][x] === 'k' ? INK : O[y][x] === 'w' ? '#ffffff' : pal[O[y][x]] || O[y][x];
+    if (O[y][x]) col[y][x] = O[y][x] === 'k' ? (bold ? BOLD_INK : INK) : O[y][x] === 'w' ? '#ffffff' : pal[O[y][x]] || O[y][x];
   }
   const cv = document.createElement('canvas'); cv.width = w + 2; cv.height = h + 2;
   const c = cv.getContext('2d');
   for (let y = -1; y <= h; y++) for (let x = -1; x <= w; x++) {
     const v = col[y] && col[y][x];
     if (v) { c.fillStyle = v; c.fillRect(x + 1, y + 1, 1, 1); }
-    else if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => col[y + dy] && col[y + dy][x + dx])) { c.fillStyle = pal.out; c.fillRect(x + 1, y + 1, 1, 1); }
+    else if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => col[y + dy] && col[y + dy][x + dx])) { c.fillStyle = bold ? BOLD_INK : pal.out; c.fillRect(x + 1, y + 1, 1, 1); }
   }
   // Gövdenin kutusu (çarpışma ve boy için), kenar payı dahil kanvas koordinatında.
   let y0 = h, y1 = 0;
@@ -623,17 +644,65 @@ function render(b, frame) {
   return cv;
 }
 function sprite(id, frame) {
-  const key = id + '_' + (frame ? 1 : 0);
+  const key = STYLE + id + '_' + (frame ? 1 : 0);
   if (!cache.has(key)) {
     const s = SPECIES.find(q => q.id === id);
-    if (!s._b) s._b = build(s);
-    cache.set(key, render(s._b, frame));
+    s._b = s._b || {};
+    if (!s._b[STYLE]) s._b[STYLE] = build(s);
+    cache.set(key, render(s._b[STYLE], frame));
   }
   return cache.get(key);
 }
 
 // Balon balığı kademeleri (sağa bakar).
+// Sade ve cesur balon balığı: siyah kalın kontur, düz renkler, iri göz, dikey göz bebeği, turuncu dudak.
+function boldPuffer(R, frame, skin) {
+  const p = skin || {}, puffed = R > 5, L = puffed ? (R >= 10 ? 3 : 2) : 0, pad = L + 4;
+  const w = 2 * R + 2 * pad + 6, h = 2 * R + 2 * pad + 2, cx = R + pad + 4, cy = R + pad + 1;
+  const g = Array.from({ length: h }, () => Array(w).fill(null));
+  const set = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < w && y < h) g[y][x] = c; };
+  const inC = (x, y, ox, oy, r) => (x + .5 - ox) ** 2 + (y + .5 - oy) ** 2 <= r * r;
+  if (puffed) for (let i = 0; i < 10; i++) {
+    const a = (i + .5) / 10 * Math.PI * 2; if (Math.cos(a) < -.6) continue;
+    for (let d = 0; d <= L; d++) {
+      const rr = R + d, half = Math.max(0, (L - d) * .5), px = cx + Math.cos(a) * rr, py = cy + Math.sin(a) * rr;
+      for (let k = -half; k <= half; k += .5) set(px - Math.sin(a) * k, py + Math.cos(a) * k, 'S');
+    }
+  }
+  const tl = Math.max(3, Math.round(R * .55));
+  for (let d = 0; d < tl; d++) for (let y = -1 - Math.floor(d * .9); y <= 1 + Math.floor(d * .9); y++) set(cx - R - d, cy + y + (frame && d > 1 ? 1 : 0), 'O');
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (inC(x, y, cx, cy, R)) {
+    g[y][x] = y > cy + R * .3 ? 'C' : 'Y';
+    if (inC(x, y, cx - R * .42, cy - R * .45, R * .28) && !inC(x, y, cx - R * .3, cy - R * .33, R * .26)) g[y][x] = 'H';
+  }
+  if (p.sparkle) for (const [a2, b3] of [[-0.1, 0.45], [-0.6, 0.2], [0.3, -0.75]]) set(cx + a2 * R, cy + b3 * R, 'W');
+  if (puffed) { set(cx + R * .25, cy + R * .2, 'P'); set(cx + R * .25 + 1, cy + R * .2, 'P'); }
+  const er = Math.max(2.2, R * .42), ex = cx + R * .32, ey = cy - R * .28;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { if (inC(x, y, ex, ey, er + 1)) g[y][x] = 'K'; if (inC(x, y, ex, ey, er)) g[y][x] = 'W'; }
+  const pw = Math.max(1, Math.round(er * .45)), ph = Math.max(2, Math.round(er * 1.1)), px0 = Math.round(ex + er * .25), py0 = Math.round(ey - ph / 2 + er * .1);
+  for (let y = 0; y < ph; y++) for (let x = 0; x < pw; x++) set(px0 + x, py0 + y, 'K');
+  const lx = Math.round(cx + R - 1), ly = Math.round(cy + R * .18), lw = Math.max(2, Math.round(R * .35)), lh = Math.max(2, Math.round(R * .3));
+  for (let y = 0; y < lh * 2; y++) for (let x = 0; x < lw; x++) set(lx + x, ly - lh + y, y === lh ? 'K' : 'L');
+  if (!puffed) set(lx, ly, 'K');
+  if (p.crown) {
+    const cw = Math.max(5, Math.round(R * .9)) | 1, x0 = Math.round(cx + R * .1 - cw / 2), yb = cy - R - 1;
+    for (let x = 0; x < cw; x++) { set(x0 + x, yb, 'G'); set(x0 + x, yb - 1, 'G'); }
+    for (const x of [0, cw >> 1, cw - 1]) { set(x0 + x, yb - 2, 'G'); set(x0 + x, yb - 3, 'G'); }
+    set(x0 + (cw >> 1), yb - 1, 'R');
+  }
+  const out = g.map(r => r.slice());
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (!g[y][x] && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g[y + dy] && g[y + dy][x + dx])) out[y][x] = 'K';
+  const pal = { Y: p.body || '#fad23c', C: p.belly || '#fff4cf', H: p.lite || '#fffbe6', O: p.fin || '#f39a2a', S: p.spike || p.fin || '#f39a2a',
+    W: '#ffffff', K: BOLD_INK, L: '#f07a2a', P: '#ff9b7d', G: '#ffe066', R: '#e0303a' };
+  if (p.dead) { pal.Y = '#b8bec6'; pal.C = '#e6e9ec'; pal.H = '#d4d8dd'; pal.O = pal.S = '#8f97a1'; pal.L = '#9ca3ac'; pal.P = '#b8bec6'; }
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const c = cv.getContext('2d');
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (out[y][x]) { c.fillStyle = pal[out[y][x]]; c.fillRect(x, y, 1, 1); }
+  cv.center = [cx, cy];
+  return cv;
+}
 function puffer(R, frame, skin, opt) {
+  if (STYLE === 'bold') return boldPuffer(R, frame, skin);
   const puffed = R > 4, Ls = puffed ? (R >= 9 ? 2 : 1) : 0, pad = Ls + 3, cx = R + pad + 2, cy = R + pad;
   const w = 2 * R + 2 * pad + 3, h = 2 * R + 2 * pad + 1, g = new Grid(w, h);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if ((x - cx + 0.5) ** 2 + (y - cy + 0.5) ** 2 <= R * R) g.set(x, y, 'body');
@@ -683,5 +752,7 @@ function variant(id, over, frame) {
   return render(build(s), frame);
 }
 
-global.FishArt = { SPECIES, sprite, puffer, variant };
+function setStyle(st) { STYLE = st; cache.clear(); }
+
+global.FishArt = { SPECIES, sprite, puffer, variant, setStyle, get style() { return STYLE; } };
 })(window);
