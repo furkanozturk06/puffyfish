@@ -29,8 +29,14 @@ window.onerror = function (msg, src, line, col) {
 <script>
 'use strict';
 // Oyun 320x180 piksel çözünürlükte çizilir, ekrana keskin piksellerle büyütülür.
-const W = 180, H = 320, SAND_Y = 306;
-const PX = 58, PY = 175;           // balon balığının yeri
+// Genişlik sabit; yükseklik telefonun ekran oranına göre (uzun ekranlarda üstte ve altta boşluk kalmasın).
+const W = 180;
+// Pencere ölçüsü yüklenirken henüz 0 ya da eksik olabilir; telefonun ekran ölçüsü her zaman doğrudur.
+const ratioOf = (h, w) => (h > 0 && w > 0 ? h / w : 0);
+const SCREEN_RATIO = Math.max(ratioOf(innerHeight, innerWidth), ratioOf(screen.height, screen.width), 16 / 9);
+const H = Math.max(320, Math.min(420, Math.round(W * SCREEN_RATIO)));
+const SAND_Y = H - 14;
+const PX = 58, PY = Math.round(H * 0.55);          // balon balığının yeri
 
 // Kademeler: 0 = sönük (yem yiyebilir), 1-5 şişkin.
 // Her dokunuş 1 kademe şişirir; dokunulmazsa DEFLATE_SECS'te bir 1 kademe söner.
@@ -382,6 +388,11 @@ function resize() {
   canvas.style.width = canvas.width / dpr + 'px'; canvas.style.height = canvas.height / dpr + 'px';
 }
 addEventListener('resize', resize);
+// Ekran oranı yüklemeden sonra farklı çıkarsa (ana sayfadayken) bir kez yeniden yükle ki boy doğru olsun.
+addEventListener('resize', () => {
+  const want = Math.max(320, Math.min(420, Math.round(W * Math.max(ratioOf(innerHeight, innerWidth), 16 / 9))));
+  if (Math.abs(want - H) > 8 && state === 'menu') location.reload();
+});
 resize();
 
 // ---------- Ses ----------
@@ -952,7 +963,7 @@ function drawTut() {
   if (tut.phase === 'go' && !st.need()) drawHand(W - 22, 100, st.hand);
   if (tut.phase === 'ok' && st.arrow) drawArrow(51, 17 - bob, true);
   if (tut.lines) {
-    const fail = tut.phase === 'fail', rows = wrap(tut.lines, W - 20), h = 10 + rows.length * 11, py = 234;
+    const fail = tut.phase === 'fail', rows = wrap(tut.lines, W - 20), h = 10 + rows.length * 11, py = PY + 59;
     panel(6, py, W - 12, h);
     rows.forEach((l, i) => txt(l.s, W / 2, py + 6 + i * 11, 1,
       l.k === 0 ? (fail ? '#ff8a6e' : '#ffe066') : '#ffffff', l.k === 0 ? (fail ? '#e5533c' : '#f5a623') : null));
