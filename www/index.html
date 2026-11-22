@@ -386,8 +386,14 @@ function resize() {
   const aw = safeBox.clientWidth || innerWidth, ah = safeBox.clientHeight || innerHeight;
   let k = Math.min(aw / W, ah / H) * dpr;
   if (k >= 1 && k < 5) k = Math.floor(k);   // küçük ekranlarda tam kat büyüt: pikseller eşit kalsın
-  canvas.width = Math.round(W * k); canvas.height = Math.round(H * k);
-  canvas.style.width = canvas.width / dpr + 'px'; canvas.style.height = canvas.height / dpr + 'px';
+  let cw = W * k / dpr, ch = H * k / dpr;
+  // Oran farkı küçükse güvenli alanı tamamen doldur: %8'e kadar esneme fark edilmez, kenarda şerit kalmaz.
+  if (Math.max(aw / cw, ah / ch) < 1.08) { cw = aw; ch = ah; }
+  canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+  canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px';
+  const sb = safeBox.getBoundingClientRect();   // güvenli alanın ortasına yerleştir
+  canvas.style.left = (sb.width ? sb.left + sb.width / 2 : innerWidth / 2) + 'px';
+  canvas.style.top = (sb.height ? sb.top + sb.height / 2 : innerHeight / 2) + 'px';
 }
 addEventListener('resize', resize);
 // Açılışta sistem çubukları kalkınca 'resize' gelmeyebiliyor; alanın kendisi değişince de yeniden ölçekle.
@@ -1042,6 +1048,7 @@ queuePuffer(skin);
 for (const sp of SPECIES) for (const f of [0, 1]) bakeQueue.push(() => FishArt.sprite(sp.id, f));
 
 let lastT = performance.now();
+let pageBg = '';
 function loop(now) {
   const dt = Math.min(0.033, (now - lastT) / 1000);
   lastT = now; time = now / 1000;
@@ -1056,6 +1063,8 @@ function loop(now) {
   }
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(low, 0, 0, canvas.width, canvas.height);
+  // Çentik şeridi suyun üst rengiyle aynı olsun
+  if (ZONES[zone].top !== pageBg) { pageBg = ZONES[zone].top; document.body.style.background = pageBg; }
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
