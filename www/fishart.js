@@ -681,12 +681,9 @@ function boldPuffer(R, frame, skin) {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { if (inC(x, y, ex, ey, er + 1)) g[y][x] = 'K'; if (inC(x, y, ex, ey, er)) g[y][x] = 'W'; }
   const pw = Math.max(1, Math.round(er * .45)), ph = Math.max(2, Math.round(er * 1.1)), px0 = Math.round(ex + er * .25), py0 = Math.round(ey - ph / 2 + er * .1);
   for (let y = 0; y < ph; y++) for (let x = 0; x < pw; x++) set(px0 + x, py0 + y, 'K');
-  // dudak: köşeleri yuvarlak, üst ve alt dudak iki tonlu, ortasında kısa ağız çizgisi
-  const lw = Math.max(3, Math.round(R * .38)), lh = Math.max(2, Math.round(R * .26)), lx = Math.round(cx + R - 2), ly = Math.round(cy + R * .2);
-  for (let y = 0; y < lh * 2; y++) for (let x = 0; x < lw; x++) {
-    if (x === lw - 1 && (y === 0 || y === lh * 2 - 1)) continue;
-    set(lx + x, ly - lh + y, y === lh && x > 0 && x < lw - 1 ? 'K' : y < lh ? 'L' : 'M');
-  }
+  const lx = Math.round(cx + R - 1), ly = Math.round(cy + R * .18), lw = Math.max(2, Math.round(R * .35)), lh = Math.max(2, Math.round(R * .3));
+  for (let y = 0; y < lh * 2; y++) for (let x = 0; x < lw; x++) set(lx + x, ly - lh + y, y === lh ? 'K' : 'L');
+  if (!puffed) set(lx, ly, 'K');
   if (p.crown) {
     const cw = Math.max(5, Math.round(R * .9)) | 1, x0 = Math.round(cx + R * .1 - cw / 2), yb = cy - R - 1;
     for (let x = 0; x < cw; x++) { set(x0 + x, yb, 'G'); set(x0 + x, yb - 1, 'G'); }
@@ -696,8 +693,8 @@ function boldPuffer(R, frame, skin) {
   const out = g.map(r => r.slice());
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (!g[y][x] && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g[y + dy] && g[y + dy][x + dx])) out[y][x] = 'K';
   const pal = { Y: p.body || '#fad23c', C: p.belly || '#fff4cf', H: p.lite || '#fffbe6', O: p.fin || '#f39a2a', S: p.spike || p.fin || '#f39a2a',
-    W: '#ffffff', K: BOLD_INK, L: '#ff8a3a', M: '#e0602a', P: '#ff9b7d', G: '#ffe066', R: '#e0303a' };
-  if (p.dead) { pal.Y = '#b8bec6'; pal.C = '#e6e9ec'; pal.H = '#d4d8dd'; pal.O = pal.S = '#8f97a1'; pal.L = '#9ca3ac'; pal.M = '#8f97a1'; pal.P = '#b8bec6'; }
+    W: '#ffffff', K: BOLD_INK, L: '#f07a2a', P: '#ff9b7d', G: '#ffe066', R: '#e0303a' };
+  if (p.dead) { pal.Y = '#b8bec6'; pal.C = '#e6e9ec'; pal.H = '#d4d8dd'; pal.O = pal.S = '#8f97a1'; pal.L = '#9ca3ac'; pal.P = '#b8bec6'; }
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   const c = cv.getContext('2d');
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (out[y][x]) { c.fillStyle = pal[out[y][x]]; c.fillRect(x, y, 1, 1); }
