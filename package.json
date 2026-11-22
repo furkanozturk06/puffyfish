@@ -2,7 +2,7 @@
   "name": "puffyfish",
   "version": "1.0.0",
   "private": true,
-  "description": "Puffy Fish (Şiş Balık) - pixel-art arcade game for Android and iOS",
+  "description": "Puffy Fish - pixel-art arcade game for Android and iOS",
   "scripts": {
     "sync": "cap sync",
     "android": "cap sync android && cap open android",

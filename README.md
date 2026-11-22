@@ -1,4 +1,4 @@
-# Puffy Fish (Şiş Balık)
+# Puffy Fish
 
 A pixel-art arcade game about a pufferfish. Tap to puff up one level at a time, outgrow the big fish and deflate to eat the small ones.
 

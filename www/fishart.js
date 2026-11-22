@@ -1,4 +1,4 @@
-// Şiş Balık: deniz canlılarının piksel çizimleri.
+// Puffy Fish: deniz canlılarının piksel çizimleri.
 // Her tür kısa bir tariften (gövde şekli, yüzgeçler, kuyruk, desen, göz, ağız) piksel piksel kurulur;
 // gövde gölgesi kıvrımı izler, kontur her canlının kendi koyu rengidir.
 (function (global) {
