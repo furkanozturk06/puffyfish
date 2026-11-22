@@ -783,7 +783,9 @@ function drawBadges() {
     const bounce = danger && close ? -Math.round(Math.abs(Math.sin(time * 10)) * 2) : 0;
     const k = f.sp.food ? 1 : 2, w = sp.c.width * k, h = sp.c.height * k;   // nokta rozetleri 2 kat büyük
     const y = Math.max(64, Math.round(f.y + Math.sin(time * 2 + f.ph) * 1.5 - f.s - 6 - h)) + bounce;
-    g.drawImage(sp.c, Math.round(f.x - f.hl * 0.4 - w / 2), y, w, h);
+    // Başa yakın dursun ama ekranın sağından taşmasın: uzun burunlu balıkta da burun girer girmez görünür.
+    const bx = Math.min(W - w - 3, Math.round(f.x - f.hl * 0.7 - w / 2));
+    g.drawImage(sp.c, bx, y, w, h);
   }
   if (!eaten) {
     const m = BADGE.me[stage], w = m.c.width * 2, h = m.c.height * 2, by = Math.max(64, Math.round(PY - r - 8 - h));
