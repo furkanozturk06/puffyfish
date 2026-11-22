@@ -398,24 +398,33 @@ function sfx(f0, f1, dur, type, vol, delay) {
   o.start(t); o.stop(t + dur + 0.02);
 }
 // ---------- Telefon (Capacitor) ----------
-// Uygulama içinde yerel eklentiler, tarayıcıda yedek davranış.
-const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-const plugin = name => isNative ? window.Capacitor.registerPlugin(name) : null;
-const Haptics = plugin('Haptics'), StatusBar = plugin('StatusBar'), NativeApp = plugin('App');
+// Uygulama içinde Capacitor köprüsüyle yerel eklentiler, tarayıcıda yedek davranış.
+// Paketleyici kullanmadığımız için eklentilere doğrudan köprü üzerinden ulaşılır;
+// buradaki hiçbir hata oyunu durdurmaz.
+const Cap = window.Capacitor;
+const isNative = !!(Cap && Cap.isNativePlatform && Cap.isNativePlatform());
+function native(pluginName, method, opts) {
+  if (!isNative || !Cap.nativePromise) return Promise.resolve();
+  try { return Promise.resolve(Cap.nativePromise(pluginName, method, opts || {})).catch(() => {}); } catch (e) { return Promise.resolve(); }
+}
+function onNative(pluginName, eventName, fn) {
+  if (!isNative || !Cap.nativeCallback) return;
+  try { Cap.nativeCallback(pluginName, 'addListener', { eventName }, fn); } catch (e) {}
+}
 function vibrate(ms) {
-  if (Haptics) { Haptics.impact({ style: ms > 60 ? 'HEAVY' : 'LIGHT' }).catch(() => {}); return; }
+  if (isNative) { native('Haptics', 'impact', { style: ms > 60 ? 'HEAVY' : 'LIGHT' }); return; }
   if (navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {}
 }
 let paused = false;
 function pause() { if (state === 'play' || state === 'tut') paused = true; }
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 addEventListener('contextmenu', e => e.preventDefault());
-if (StatusBar) StatusBar.hide().catch(() => {});
+native('StatusBar', 'hide');
 // Android geri tuşu: oyunda duraklat, ekranlarda bir geri git, ana sayfada uygulamadan çık.
-if (NativeApp) NativeApp.addListener('backButton', () => {
+onNative('App', 'backButton', () => {
   if (paused) { paused = false; return; }
   if (state === 'play') pause();
-  else if (state === 'menu') NativeApp.exitApp();
+  else if (state === 'menu') native('App', 'exitApp');
   else goMenu();
 });
 
