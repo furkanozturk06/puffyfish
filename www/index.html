@@ -29,12 +29,14 @@ window.onerror = function (msg, src, line, col) {
 <script>
 'use strict';
 // Oyun 320x180 piksel çözünürlükte çizilir, ekrana keskin piksellerle büyütülür.
-// Genişlik sabit; yükseklik telefonun ekran oranına göre (uzun ekranlarda üstte ve altta boşluk kalmasın).
-const W = 180;
+// Telefonda genişlik 180, yükseklik ekran oranına göre (uzun ekranlarda üstte ve altta boşluk kalmasın).
+// Tablet gibi geniş ekranlarda yükseklik 320, genişlik ekrana göre artar (yanlarda boşluk kalmasın).
 // Pencere ölçüsü yüklenirken henüz 0 ya da eksik olabilir; telefonun ekran ölçüsü her zaman doğrudur.
 const ratioOf = (h, w) => (h > 0 && w > 0 ? h / w : 0);
-const SCREEN_RATIO = Math.max(ratioOf(innerHeight, innerWidth), ratioOf(screen.height, screen.width), 16 / 9);
-const H = Math.max(320, Math.min(420, Math.round(W * SCREEN_RATIO)));
+const sizeFor = r => (r > 0 && r < 16 / 9
+  ? [Math.min(240, Math.round(320 / r)), 320]
+  : [180, Math.max(320, Math.min(420, Math.round(180 * (r || 16 / 9))))]);
+const [W, H] = sizeFor(Math.max(ratioOf(innerHeight, innerWidth), ratioOf(screen.height, screen.width)));
 const SAND_Y = H - 14;
 const PX = 58, PY = Math.round(H * 0.55);          // balon balığının yeri
 
@@ -390,8 +392,8 @@ function resize() {
 addEventListener('resize', resize);
 // Ekran oranı yüklemeden sonra farklı çıkarsa (ana sayfadayken) bir kez yeniden yükle ki boy doğru olsun.
 addEventListener('resize', () => {
-  const want = Math.max(320, Math.min(420, Math.round(W * Math.max(ratioOf(innerHeight, innerWidth), 16 / 9))));
-  if (Math.abs(want - H) > 8 && state === 'menu') location.reload();
+  const [ww, wh] = sizeFor(ratioOf(innerHeight, innerWidth));
+  if ((Math.abs(ww - W) > 8 || Math.abs(wh - H) > 8) && state === 'menu') location.reload();
 });
 resize();
 
@@ -546,7 +548,7 @@ const BTN = {
   retry: { x: 12, y: 214, w: 76, h: 20 },
   home:  { x: 92, y: 214, w: 76, h: 20 },
 };
-const cardRect = i => ({ x: 8 + (i % 2) * 88, y: 48 + Math.floor(i / 2) * 74, w: 76, h: 66 });
+const cardRect = i => ({ x: Math.round(W / 2) - 82 + (i % 2) * 88, y: 48 + Math.floor(i / 2) * 74, w: 76, h: 66 });
 const inside = (p, b) => p && p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h;
 function toLow(e) {
   const b = canvas.getBoundingClientRect();
