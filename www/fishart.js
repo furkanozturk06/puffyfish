@@ -658,9 +658,22 @@ function puffer(R, frame, skin, opt) {
   if (puffed) { g.over(cx + R - 1, cy + Math.round(R * 0.25), 'm'); g.over(cx + R - 1, cy + Math.round(R * 0.25) + 1, 'm'); g.over(ex, ey + e + 1, 'p'); g.over(ex + 1, ey + e + 1, 'p'); }
   else { g.over(cx + R - 1, cy + 1, 'r'); g.over(cx + R - 2, cy + 1, 'r'); g.over(cx + R - 1, cy + 2, 'r'); }
   if (R >= 7) for (const [a, b2] of [[-0.55, -0.35], [-0.2, -0.65], [-0.6, 0.15], [-0.25, 0.05]]) g.over(Math.round(cx + a * R), Math.round(cy + b2 * R), 's');
+  const sk = skin || {};
+  // Parıltı: gövdede birkaç beyaz pırıltı (altın görünüm)
+  if (sk.sparkle) for (const [a2, b3] of [[-0.35, -0.5], [0.1, 0.35], [-0.6, 0.35], [0.35, -0.75]]) {
+    const x = Math.round(cx + a2 * R), y = Math.round(cy + b3 * R);
+    g.over(x, y, 'w'); if (R >= 9) { g.over(x - 1, y, 'sp2'); g.over(x + 1, y, 'sp2'); g.over(x, y - 1, 'sp2'); g.over(x, y + 1, 'sp2'); }
+  }
+  // Taç: başın üstünde, kırmızı taşlı
+  if (sk.crown) {
+    const cw = Math.max(5, Math.round(R * 0.9)) | 1, x0 = Math.round(cx + R * 0.1 - cw / 2), yb = cy - R - 1;
+    for (let x = 0; x < cw; x++) { g.set(x0 + x, yb, 'cr'); g.set(x0 + x, yb - 1, 'cr'); }
+    for (const x of [0, cw >> 1, cw - 1]) { g.set(x0 + x, yb - 2, 'cr'); g.set(x0 + x, yb - 3, 'cr'); }
+    g.over(x0 + (cw >> 1), yb - 1, 'gm');
+  }
   const p = skin || {};
   const pal = { out: p.out || (p.body ? dark(p.body, .58) : '#7a3f0e'), back: p.body || '#f9cf48', lite: p.lite || '#fff0a8', mid: p.body || '#f9cf48', bellyc: p.belly || '#fff3cc', shade: p.shade || '#e3a034',
-    fin: p.fin || '#e8902c', fin2: light(p.fin || '#e8902c', .25), sp: p.spike || '#f0a43a', s: p.spot || '#d0841f', m: '#ff6f4f', p: '#ff9b7d', eo: dark(p.body || '#f9cf48', .45), brow: dark(p.body || '#f9cf48', .5), r: '#7a2830' };
+    fin: p.fin || '#e8902c', fin2: light(p.fin || '#e8902c', .25), cr: '#ffe066', gm: '#e0303a', sp2: '#fff6c8', sp: p.spike || '#f0a43a', s: p.spot || '#d0841f', m: '#ff6f4f', p: '#ff9b7d', eo: dark(p.body || '#f9cf48', .45), brow: dark(p.body || '#f9cf48', .5), r: '#7a2830' };
   return render({ g, pal, tailX: 9999 }, 0);
 }
 
