@@ -75,12 +75,19 @@ const TIERS = [
 
 const SKINS = [
   { id: 'klasik', price: 0,   tr: 'KLASİK', en: 'CLASSIC', p: { out: '#7a3f0e', body: '#f9cf48', shade: '#e3a034', lite: '#fde990', belly: '#fff3cc', fin: '#e8902c', spot: '#c4701d', spike: '#f2b843' } },
-  { id: 'seker',  price: 60,  tr: 'ŞEKER',  en: 'CANDY',   p: { body: '#ff9ec7', shade: '#e0679a', lite: '#ffd0e4', belly: '#fff0f6', fin: '#e85a8f', spot: '#c94379', spike: '#ff8ab8' } },
-  { id: 'buz',    price: 120, tr: 'BUZ',    en: 'ICE',     p: { body: '#8fd8ff', shade: '#4fa6e0', lite: '#d4f1ff', belly: '#f0fbff', fin: '#3d8fd1', spot: '#2a6fb0', spike: '#7cc8f5' } },
-  { id: 'zehir',  price: 200, tr: 'ZEHİR',  en: 'TOXIC',   p: { body: '#8fe06a', shade: '#55a83a', lite: '#c9f5a8', belly: '#eaffd8', fin: '#3f8f2a', spot: '#7a2fb0', spike: '#76c956' } },
-  { id: 'gece',   price: 350, tr: 'GECE',   en: 'NIGHT',   p: { body: '#6b5bd1', shade: '#4a3a9e', lite: '#9d8ff0', belly: '#c9c1ff', fin: '#3a2d80', spot: '#ffe066', spike: '#5a4bbf' } },
-  { id: 'altin',  price: 600, tr: 'ALTIN',  en: 'GOLD',    p: { body: '#f0a818', shade: '#a8640a', lite: '#ffd860', belly: '#ffd25a', fin: '#9a5a08', spot: '#ffe9a0', spike: '#ffc838', out: '#4a2a00', crown: true, sparkle: true } },
+  { id: 'buz',    price: 300, tr: 'BUZ',    en: 'ICE',     p: { body: '#8fd8ff', shade: '#4fa6e0', lite: '#d4f1ff', belly: '#f0fbff', fin: '#3d8fd1', spot: '#2a6fb0', spike: '#7cc8f5' } },
+  { id: 'zehir',  price: 400, tr: 'ZEHİR',  en: 'TOXIC',   p: { body: '#8fe06a', shade: '#55a83a', lite: '#c9f5a8', belly: '#eaffd8', fin: '#3f8f2a', spot: '#7a2fb0', spike: '#76c956' } },
+  { id: 'seker',  price: 500, tr: 'ŞEKER',  en: 'CANDY',   p: { body: '#ff9ec7', shade: '#e0679a', lite: '#ffd0e4', belly: '#fff0f6', fin: '#e85a8f', spot: '#c94379', spike: '#ff8ab8' } },
+  { id: 'gece',   price: 600, tr: 'GECE',   en: 'NIGHT',   p: { body: '#6b5bd1', shade: '#4a3a9e', lite: '#9d8ff0', belly: '#c9c1ff', fin: '#3a2d80', spot: '#ffe066', spike: '#5a4bbf' } },
+  { id: 'altin',  price: 700, tr: 'ALTIN',  en: 'GOLD',    p: { body: '#f0a818', shade: '#a8640a', lite: '#ffd860', belly: '#ffd25a', fin: '#9a5a08', spot: '#ffe9a0', spike: '#ffc838', out: '#4a2a00', crown: true, sparkle: true } },
+  { id: 'kaplan', price: 800, tr: 'KAPLAN', en: 'TIGER',   p: { body: '#ff9a2e', lite: '#ffc98a', belly: '#fff1d6', fin: '#e06a10', spike: '#ffb35c', spot: '#1b1b1f', stripes: true } },
+  { id: 'ugur',   price: 900, tr: 'UĞUR',   en: 'LADYBUG', p: { body: '#e8392f', lite: '#ff8a7a', belly: '#ffe0dc', fin: '#a81f1a', spike: '#ff5a4d', spot: '#1b1b1f', spots: true } },
+  { id: 'havali', price: 1000, tr: 'HAVALI', en: 'COOL',   p: { body: '#39c6b8', lite: '#9ff0e6', belly: '#e3fffa', fin: '#1f8f86', spike: '#6fe0d4', glasses: true } },
+  { id: 'fiyonk', price: 1100, tr: 'FİYONK', en: 'BOW',    p: { body: '#c9a4ff', lite: '#e8dbff', belly: '#f6eeff', fin: '#9b6fe0', spike: '#b88cff', bow: true } },
+  { id: 'lav',    price: 1200, tr: 'LAV',    en: 'LAVA',   p: { body: '#4a4450', lite: '#6e6876', belly: '#6a6270', fin: '#ff5a1a', spike: '#ff7a1a', spot: '#ff9a2a', spots: true } },
+  { id: 'elmas',  price: 1500, tr: 'ELMAS',  en: 'DIAMOND', p: { body: '#7fe8ff', lite: '#ffffff', belly: '#e8fdff', fin: '#3cb8e0', spike: '#b8f4ff', sparkle: true, glasses: true } },
 ];
+const SHOP_PAGE = 6;
 const DEAD_SKIN = { body: '#b8bec6', shade: '#959ca6', lite: '#d4d8dd', belly: '#e6e9ec', fin: '#8f97a1', spot: '#7b828c', spike: '#a6adb6' };
 
 // ---------- Dil ----------
@@ -91,6 +98,7 @@ const STR = {
     best: 'EN İYİ', score: 'SKOR', new: 'YENİ!', retry: 'TEKRAR', home: 'ANA SAYFA', eaten: 'YEM OLDUN', starved: 'AÇ KALDIN',
     go: 'BAŞLA!', yum: 'HAM', away: 'KAÇTI', close: 'KILPAYI', nice: 'İYİ', combo: 'KOMBO', comboLost: 'KOMBO BİTTİ', ouch: 'AH!',
     paused: 'DURAKLATILDI', resume: 'DEVAM İÇİN DOKUN', selected: 'SEÇİLİ', select: 'SEÇ', bought: 'SATIN ALINDI!', noCoins: 'YETERSİZ ALTIN',
+    watchAd: 'REKLAM İZLE +5', adLeft: 'GÜNLÜK HAK', double: 'REKLAM İZLE: 2X ALTIN', doubled: 'ALTIN 2 KATI!', adFail: 'REKLAM YOK, SONRA DENE', ad: 'REKLAM', noAdsLeft: 'YARIN YENİ HAK',
     z0: 'SIĞ SULAR', z1: 'MERCAN RESİFİ', z2: 'AÇIK DENİZ', z3: 'DERİN DENİZ',
     t0: ['BU SENSİN: PUFFY FISH', 'BÜYÜKLERE ŞİŞ, KÜÇÜKLERİ YE'],
     t1: ['BÜYÜK BALIK! ÜSTÜNDEKİ NOKTALARA BAK', 'HER DOKUNUŞ 1 NOKTA ŞİŞİRİR'], t1ok: ['AFERİN! DOKUNMAZSAN YAVAŞÇA SÖNERSİN'],
@@ -106,6 +114,7 @@ const STR = {
     best: 'BEST', score: 'SCORE', new: 'NEW!', retry: 'RETRY', home: 'MENU', eaten: 'EATEN!', starved: 'STARVED!',
     go: 'GO!', yum: 'YUM', away: 'GOT AWAY', close: 'CLOSE CALL', nice: 'NICE', combo: 'COMBO', comboLost: 'COMBO LOST', ouch: 'OUCH!',
     paused: 'PAUSED', resume: 'TAP TO RESUME', selected: 'EQUIPPED', select: 'EQUIP', bought: 'PURCHASED!', noCoins: 'NOT ENOUGH COINS',
+    watchAd: 'WATCH AD +5', adLeft: 'DAILY', double: 'WATCH AD: 2X COINS', doubled: 'COINS DOUBLED!', adFail: 'NO AD, TRY LATER', ad: 'AD', noAdsLeft: 'MORE TOMORROW',
     z0: 'SHALLOWS', z1: 'CORAL REEF', z2: 'OPEN SEA', z3: 'DEEP SEA',
     t0: ['THIS IS YOU: PUFFY FISH', 'PUFF UP AT BIG FISH, EAT SMALL ONES'],
     t1: ['BIG FISH! COUNT THE DOTS ABOVE IT', 'EACH TAP ADDS ONE DOT TO YOU'], t1ok: ['NICE! STOP TAPPING AND YOU DEFLATE'],
@@ -124,7 +133,9 @@ function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch 
 let best = +load('sis_deniz_best', 0) || 0;
 let coins = +load('sis_coins', 0) || 0;
 let owned = load('sis_owned', ['klasik']);
-let skin = +load('sis_skin', 0) || 0;
+// Seçili görünüm artık kimliğiyle saklanır (eski sürüm sıra numarası saklıyordu).
+const OLD_ORDER = ['klasik', 'seker', 'buz', 'zehir', 'gece', 'altin'];
+let skin = Math.max(0, SKINS.findIndex(s => s.id === load('sis_skin_id', OLD_ORDER[+load('sis_skin', 0)] || 'klasik')));
 let tutSeen = !!load('sis_tut', false);
 let lang = load('sis_lang', (navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en');
 if (!STR[lang]) lang = 'en';
@@ -292,6 +303,7 @@ const FONT_SRC = {
   '+': '.....|..#..|..#..|#####|..#..|..#..|.....', '-': '...|...|...|###|...|...|...',
   ':': '.|#|.|.|.|#|.', '.': '.|.|.|.|.|.|#', '!': '#|#|#|#|#|.|#', '·': '.|.|.|#|.|.|.',
   '?': '.###.|#...#|....#|...#.|..#..|.....|..#..', ',': '.|.|.|.|.|#|#', '=': '.....|.....|#####|.....|#####|.....|.....',
+  '/': '....#|...#.|...#.|..#..|.#...|.#...|#....', '<': '...#|..#.|.#..|#...|.#..|..#.|...#', '>': '#...|.#..|..#.|...#|..#.|.#..|#...',
 };
 const FONT = {};
 for (const k in FONT_SRC) {
@@ -366,6 +378,7 @@ let score = 0, count = 0, hunger = 1, zone = 0, prevZone = 0, zoneFade = 1, pred
 let combo = 0, maxCombo = 0, comboPulse = 0, earned = 0;
 let pops = [], parts = [], banner = null, deadMsg = '', deadAt = 0, eaten = false, newBest = false;
 let scroll = 0, speed = SPEED_START, depth = 0, rays = 1, time = 0, menuR = R_MIN, shopMsg = null, tut = null;
+let shopPage = 0, doubled = false, deadNote = null;
 
 const SW = 640;                    // deniz dibi süslerinin tekrar genişliği
 const DECO = [];
@@ -449,6 +462,78 @@ onNative('App', 'backButton', () => {
   else goMenu();
 });
 
+// ---------- Reklamlar (AdMob) ----------
+// Şimdilik Google'ın deneme reklam kimlikleri; yayından önce kendi AdMob kimliklerinle değiştir.
+const AD_IDS = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent)
+  ? { inter: 'ca-app-pub-3940256099942544/4411468910', reward: 'ca-app-pub-3940256099942544/1712485313' }
+  : { inter: 'ca-app-pub-3940256099942544/1033173712', reward: 'ca-app-pub-3940256099942544/5224354917' };
+const INTER_EVERY = 2;              // kaç oyunda bir geçiş reklamı
+const AD_DAILY = 5, AD_COINS = 5;   // mağazada günlük reklam hakkı ve reklam başına altın
+let gamesSinceAd = 0, adBusy = false, adDone = null, adRewarded = false, fakeAd = null;
+let adDay = load('sis_ad_day', ''), adLeft = +load('sis_ad_left', AD_DAILY);
+function refreshAdDay() {
+  const d = new Date().toDateString();
+  if (d !== adDay) { adDay = d; adLeft = AD_DAILY; save('sis_ad_day', adDay); save('sis_ad_left', adLeft); }
+}
+refreshAdDay();
+const prepInter = () => native('AdMob', 'prepareInterstitial', { adId: AD_IDS.inter });
+const prepReward = () => native('AdMob', 'prepareRewardVideoAd', { adId: AD_IDS.reward });
+function adFinished() {
+  const done = adDone; adDone = null; adBusy = false;
+  if (done) done(adRewarded);
+}
+if (isNative) {
+  native('AdMob', 'initialize', {}).then(() => { prepInter(); prepReward(); });
+  onNative('AdMob', 'interstitialAdDismissed', () => { prepInter(); adFinished(); });
+  onNative('AdMob', 'interstitialAdFailedToShow', () => { prepInter(); adFinished(); });
+  onNative('AdMob', 'onRewardedVideoAdReward', () => { adRewarded = true; });
+  onNative('AdMob', 'onRewardedVideoAdDismissed', () => { prepReward(); adFinished(); });
+  onNative('AdMob', 'onRewardedVideoAdFailedToShow', () => { prepReward(); adFinished(); });
+}
+// Reklamı gösterir; kapanınca done(ödül kazanıldı mı) çağrılır. Tarayıcıda kısa bir sahte reklam gösterilir.
+function showAd(kind, done) {
+  if (adBusy) return;
+  adBusy = true; adRewarded = false; adDone = done;
+  if (!isNative) { fakeAd = { kind, t: 0 }; return; }
+  try {
+    Promise.resolve(Cap.nativePromise('AdMob', kind === 'reward' ? 'showRewardVideoAd' : 'showInterstitial', {}))
+      .catch(() => { kind === 'reward' ? prepReward() : prepInter(); adFinished(); });   // hazır değilse
+  } catch (e) { adFinished(); }
+}
+function updateFakeAd(dt) {
+  if (!fakeAd || (fakeAd.t += dt) < 1.5) return;
+  if (fakeAd.kind === 'reward') adRewarded = true;
+  fakeAd = null; adFinished();
+}
+function drawFakeAd() {
+  if (!fakeAd) return;
+  g.fillStyle = '#101820'; g.fillRect(0, 0, W, H);
+  txt(L('ad'), W / 2, H / 2 - 10, 2, '#ffffff');
+  txt(String(Math.ceil(1.5 - fakeAd.t)), W / 2, H / 2 + 14, 1, '#9fd4ff');
+}
+// Oyun bitince basılan tuştan sonra: her INTER_EVERY oyunda bir geçiş reklamı, sonra devam.
+function afterGame(next) {
+  if (gamesSinceAd >= INTER_EVERY) { gamesSinceAd = 0; showAd('inter', next); } else next();
+}
+function watchForCoins() {
+  refreshAdDay();
+  if (adLeft <= 0) { shopMsg = { text: L('noAdsLeft'), t: 1.6, good: false }; return; }
+  showAd('reward', ok => {
+    if (!ok) { shopMsg = { text: L('adFail'), t: 1.6, good: false }; return; }
+    adLeft--; coins += AD_COINS; save('sis_ad_left', adLeft); save('sis_coins', coins);
+    shopMsg = { text: '+' + AD_COINS, t: 1.6, good: true, coin: true };
+    sfx(660, 660, 0.07, 'square', 0.05); sfx(990, 990, 0.15, 'square', 0.05, 0.08);
+  });
+}
+function watchForDouble() {
+  showAd('reward', ok => {
+    if (!ok) { deadNote = { text: L('adFail'), good: false }; return; }
+    coins += earned; earned *= 2; doubled = true; gamesSinceAd = 0; save('sis_coins', coins);
+    deadNote = { text: L('doubled'), good: true };
+    sfx(660, 660, 0.07, 'square', 0.05); sfx(990, 990, 0.15, 'square', 0.05, 0.08);
+  });
+}
+
 // ---------- Oyun mantığı ----------
 // Gövde yüksekliği aynı kademedeki balon balığından biraz küçük olacak kadar tam kat büyütülür.
 function makeFish(sp, c) {
@@ -481,7 +566,7 @@ function start() {
 
 function die(msg) {
   state = 'dead'; deadMsg = msg; deadAt = performance.now();
-  earned = Math.floor(score / COIN_PER_SCORE);
+  earned = Math.floor(score / COIN_PER_SCORE); doubled = false; deadNote = null; gamesSinceAd++;
   coins += earned; save('sis_coins', coins);
   if (score > best) { best = score; newBest = true; save('sis_deniz_best', best); }
   sfx(300, 60, 0.45, 'sawtooth', 0.12);
@@ -553,10 +638,17 @@ const BTN = {
   howto: { x: W / 2 - 50, y: 270, w: 100, h: 18 },
   back:  { x: 4, y: 4, w: 44, h: 16 },
   skip:  { x: W - 44, y: 4, w: 40, h: 16 },
-  retry: { x: 12, y: 214, w: 76, h: 20 },
-  home:  { x: 92, y: 214, w: 76, h: 20 },
+  retry: { x: W / 2 - 78, y: 214, w: 76, h: 20 },
+  home:  { x: W / 2 + 2, y: 214, w: 76, h: 20 },
+  double: { x: W / 2 - 78, y: 240, w: 156, h: 20 },
+  prev:  { x: W / 2 - 82, y: 268, w: 20, h: 18 },
+  next:  { x: W / 2 + 62, y: 268, w: 20, h: 18 },
+  adShop: { x: W / 2 - 58, y: 268, w: 116, h: 18 },
 };
-const cardRect = i => ({ x: Math.round(W / 2) - 82 + (i % 2) * 88, y: 48 + Math.floor(i / 2) * 74, w: 76, h: 66 });
+const SHOP_PAGES = Math.ceil(SKINS.length / SHOP_PAGE);
+// Mağaza kartları sayfa sayfa: her sayfada 2 sütun x 3 satır, ucuzdan pahalıya.
+const cardRect = i => { i %= SHOP_PAGE; return { x: Math.round(W / 2) - 82 + (i % 2) * 88, y: 48 + Math.floor(i / 2) * 74, w: 76, h: 66 }; };
+const pageSkins = () => SKINS.map((sk, i) => i).slice(shopPage * SHOP_PAGE, (shopPage + 1) * SHOP_PAGE);
 const inside = (p, b) => p && p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h;
 function toLow(e) {
   const b = canvas.getBoundingClientRect();
@@ -568,18 +660,23 @@ const click = () => sfx(520, 700, 0.05, 'square', 0.03);
 function tap(p) {
   if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
   if (ac && ac.state === 'suspended') ac.resume().catch(() => {});   // iOS sesi arka planda kapatır
+  if (adBusy) return;
   if (paused) { paused = false; return; }
   if (state === 'menu') {
     if (inside(p, BTN.lang)) { lang = lang === 'tr' ? 'en' : 'tr'; save('sis_lang', lang); document.title = L('doc'); click(); }
-    else if (inside(p, BTN.shop)) { state = 'shop'; shopMsg = null; click(); }
+    else if (inside(p, BTN.shop)) { state = 'shop'; shopMsg = null; shopPage = Math.floor(skin / SHOP_PAGE); refreshAdDay(); click(); }
     else if (inside(p, BTN.howto)) { click(); startTutorial(); }
     else if (inside(p, BTN.play) || !p) { click(); if (tutSeen) start(); else startTutorial(); }
   } else if (state === 'shop') {
     if (inside(p, BTN.back) || !p) { goMenu(); click(); return; }
-    SKINS.forEach((sk, i) => { if (inside(p, cardRect(i))) shopPick(i); });
+    if (inside(p, BTN.prev)) { shopPage = (shopPage + SHOP_PAGES - 1) % SHOP_PAGES; click(); return; }
+    if (inside(p, BTN.next)) { shopPage = (shopPage + 1) % SHOP_PAGES; click(); return; }
+    if (inside(p, BTN.adShop)) { click(); watchForCoins(); return; }
+    pageSkins().forEach(i => { if (inside(p, cardRect(i))) shopPick(i); });
   } else if (state === 'dead') {
     if (performance.now() - deadAt < 600) return;
-    if (inside(p, BTN.home)) { goMenu(); click(); } else start();
+    if (earned > 0 && !doubled && inside(p, BTN.double)) { click(); watchForDouble(); }
+    else if (inside(p, BTN.home)) { click(); afterGame(goMenu); } else afterGame(start);
   } else if (state === 'tut') {
     if (inside(p, BTN.skip)) finishTutorial();
     else if (tut.phase !== 'go') { if (tut.t > 0.4) tut.t = tut.dur; }   // yazıyı dokunarak geç
@@ -588,10 +685,10 @@ function tap(p) {
 }
 function shopPick(i) {
   const sk = SKINS[i];
-  if (owned.includes(sk.id)) { skin = i; save('sis_skin', i); click(); return; }
+  if (owned.includes(sk.id)) { skin = i; save('sis_skin_id', sk.id); click(); return; }
   if (coins < sk.price) { shopMsg = { text: L('noCoins'), t: 1.6, good: false }; sfx(200, 120, 0.15, 'triangle', 0.06); return; }
   coins -= sk.price; owned.push(sk.id); skin = i;
-  save('sis_coins', coins); save('sis_owned', owned); save('sis_skin', i);
+  save('sis_coins', coins); save('sis_owned', owned); save('sis_skin_id', sk.id);
   shopMsg = { text: L('bought'), t: 1.6, good: true };
   sfx(660, 660, 0.07, 'square', 0.05); sfx(990, 990, 0.15, 'square', 0.05, 0.08);
   queuePuffer(i);
@@ -945,8 +1042,8 @@ function drawShop() {
   txt(L('shop'), W / 2, 26, 2, '#ffe066', '#f5a623');
   button(BTN.back, L('back'));
   drawCoins(W - 6, 9, coins);
-  SKINS.forEach((sk, i) => {
-    const b = cardRect(i), cx = b.x + b.w / 2, sel = i === skin, have = owned.includes(sk.id);
+  pageSkins().forEach(i => {
+    const sk = SKINS[i], b = cardRect(i), cx = b.x + b.w / 2, sel = i === skin, have = owned.includes(sk.id);
     if (sel) rrect(b.x - 3, b.y - 3, b.w + 6, b.h + 6, '#ffe066');
     panel(b.x, b.y, b.w, b.h);
     drawPufferAt(cx + 2, b.y + 22, STAGE_R[1], i, false);
@@ -959,7 +1056,18 @@ function drawShop() {
       g.drawImage(COIN.c, Math.round(cx + 5 - w / 2 - 11), b.y + 52);
     }
   });
-  if (shopMsg) txt(shopMsg.text, W / 2, 280, 1, shopMsg.good ? '#7ee08f' : '#ff8a6e');
+  if (SHOP_PAGES > 1) { button(BTN.prev, '<'); button(BTN.next, '>'); }
+  refreshAdDay();
+  button(BTN.adShop, L('watchAd'));
+  txt(L('adLeft') + ' ' + adLeft + '/' + AD_DAILY, W / 2, 290, 1, adLeft > 0 ? '#bfe0ff' : '#ff8a6e');
+  if (shopMsg) {
+    const y = 302, col = shopMsg.good ? '#7ee08f' : '#ff8a6e';
+    if (shopMsg.coin) {
+      const w = textSprite(shopMsg.text, 1, '#ffe066').w;
+      txt(shopMsg.text, W / 2 + 6, y, 1, '#ffe066');
+      g.drawImage(COIN.c, Math.round(W / 2 + 6 - w / 2 - 11), y - 1);
+    } else txt(shopMsg.text, W / 2, y, 1, col);
+  }
 }
 
 function drawTut() {
@@ -1005,7 +1113,11 @@ function drawDead() {
   const s = '+' + earned, w = textSprite(s, 1, '#ffe066').w;
   txt(s, W / 2 + 6, 186, 1, '#ffe066');
   g.drawImage(COIN.c, Math.round(W / 2 + 6 - w / 2 - 11), 185);
-  if (e > 600) { button(BTN.retry, L('retry')); button(BTN.home, L('home')); }
+  if (e > 600) {
+    button(BTN.retry, L('retry')); button(BTN.home, L('home'));
+    if (earned > 0 && !doubled) button(BTN.double, L('double'));
+    if (deadNote) txt(deadNote.text, W / 2, 268, 1, deadNote.good ? '#7ee08f' : '#ff8a6e');
+  }
 }
 
 function render() {
@@ -1055,7 +1167,9 @@ function loop(now) {
   for (let n = state === 'play' ? 1 : 3; n > 0 && bakeQueue.length; n--) bakeQueue.shift()();
   if (!paused && (state === 'play' || state === 'tut')) update(dt);
   if (!paused) updateFx(dt);
+  updateFakeAd(dt);
   render();
+  drawFakeAd();
   if (paused) {
     g.fillStyle = 'rgba(4,14,28,0.6)'; g.fillRect(0, 0, W, H);
     txt(L('paused'), W / 2, H / 2 - 20, 2, '#ffffff', '#bfe0ff');

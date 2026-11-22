@@ -10,6 +10,7 @@
     "assets": "capacitor-assets generate --iconBackgroundColor #1f86b5 --iconBackgroundColorDark #0d426f --splashBackgroundColor #1f86b5 --splashBackgroundColorDark #061a31"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^8.4.2",
     "@capacitor/android": "^8.6.2",
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.6.2",

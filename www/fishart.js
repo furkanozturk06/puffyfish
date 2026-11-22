@@ -675,6 +675,15 @@ function boldPuffer(R, frame, skin) {
     g[y][x] = y > cy + R * .3 ? 'C' : 'Y';
     if (inC(x, y, cx - R * .42, cy - R * .45, R * .28) && !inC(x, y, cx - R * .3, cy - R * .33, R * .26)) g[y][x] = 'H';
   }
+  // Desenler (gözden önce çizilir, göz üstüne gelir): kaplan çizgisi, benek
+  if (p.stripes) for (const f of [-.62, -.22, .12]) {
+    const sw = Math.max(1, Math.round(R * .13)), x0 = Math.round(cx + f * R);
+    for (let y = 0; y < h; y++) for (let x = x0; x < x0 + sw; x++) if (g[y][x] === 'Y' && y < cy + R * .15) g[y][x] = 'D';
+  }
+  if (p.spots) for (const [a2, b3] of [[-.55, -.25], [-.2, -.62], [-.5, .3], [-.1, .05], [.5, .42]]) {
+    const sr = Math.max(1, R * .14), sx = cx + a2 * R, sy = cy + b3 * R;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (inC(x, y, sx, sy, sr) && (g[y][x] === 'Y' || g[y][x] === 'C' || g[y][x] === 'H')) g[y][x] = 'D';
+  }
   if (p.sparkle) for (const [a2, b3] of [[-0.1, 0.45], [-0.6, 0.2], [0.3, -0.75]]) set(cx + a2 * R, cy + b3 * R, 'W');
   if (puffed) { set(cx + R * .25, cy + R * .2, 'P'); set(cx + R * .25 + 1, cy + R * .2, 'P'); }
   const er = Math.max(2.2, R * .42), ex = cx + R * .32, ey = cy - R * .28;
@@ -684,6 +693,19 @@ function boldPuffer(R, frame, skin) {
   const lx = Math.round(cx + R - 1), ly = Math.round(cy + R * .18), lw = Math.max(2, Math.round(R * .35)), lh = Math.max(2, Math.round(R * .3));
   for (let y = 0; y < lh * 2; y++) for (let x = 0; x < lw; x++) set(lx + x, ly - lh + y, y === lh ? 'K' : 'L');
   if (!puffed) set(lx, ly, 'K');
+  // Güneş gözlüğü: gözün üstünde siyah cam, arkaya sap, camda parıltı
+  if (p.glasses) {
+    const gx0 = Math.round(ex - er - 1), gx1 = Math.round(ex + er + 1), gy0 = Math.round(ey - er * .55), gy1 = Math.round(ey + er * .45);
+    for (let y = gy0; y <= gy1; y++) for (let x = gx0; x <= gx1; x++) if (!(y === gy1 && (x === gx0 || x === gx1))) set(x, y, 'K');
+    for (let x = Math.round(cx - R * .35); x < gx0; x++) set(x, gy0 + 1, 'K');
+    set(gx0 + 2, gy0 + 1, 'W'); if (er > 3) set(gx0 + 3, gy0 + 1, 'W');
+  }
+  // Fiyonk: başın üstünde iki kanat ve düğüm
+  if (p.bow) {
+    const bx = Math.round(cx - R * .2), by = Math.round(cy - R * .92), bs = Math.max(2, Math.round(R * .32));
+    for (let d = 1; d <= bs; d++) for (let y = -Math.round(d * .75); y <= Math.round(d * .75); y++) { set(bx - 1 - d, by + y, 'B'); set(bx + 1 + d, by + y, 'B'); }
+    for (let y = -1; y <= 1; y++) for (let x = -1; x <= 1; x++) set(bx + x, by + y, 'b');
+  }
   if (p.crown) {
     const cw = Math.max(5, Math.round(R * .9)) | 1, x0 = Math.round(cx + R * .1 - cw / 2), yb = cy - R - 1;
     for (let x = 0; x < cw; x++) { set(x0 + x, yb, 'G'); set(x0 + x, yb - 1, 'G'); }
@@ -693,7 +715,7 @@ function boldPuffer(R, frame, skin) {
   const out = g.map(r => r.slice());
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (!g[y][x] && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g[y + dy] && g[y + dy][x + dx])) out[y][x] = 'K';
   const pal = { Y: p.body || '#fad23c', C: p.belly || '#fff4cf', H: p.lite || '#fffbe6', O: p.fin || '#f39a2a', S: p.spike || p.fin || '#f39a2a',
-    W: '#ffffff', K: BOLD_INK, L: '#f07a2a', P: '#ff9b7d', G: '#ffe066', R: '#e0303a' };
+    W: '#ffffff', K: BOLD_INK, L: '#f07a2a', P: '#ff9b7d', G: '#ffe066', R: '#e0303a', D: p.spot || BOLD_INK, B: '#ff5fa2', b: '#d63a7e' };
   if (p.dead) { pal.Y = '#b8bec6'; pal.C = '#e6e9ec'; pal.H = '#d4d8dd'; pal.O = pal.S = '#8f97a1'; pal.L = '#9ca3ac'; pal.P = '#b8bec6'; }
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   const c = cv.getContext('2d');
