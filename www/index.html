@@ -390,6 +390,8 @@ function resize() {
   canvas.style.width = canvas.width / dpr + 'px'; canvas.style.height = canvas.height / dpr + 'px';
 }
 addEventListener('resize', resize);
+// Açılışta sistem çubukları kalkınca 'resize' gelmeyebiliyor; alanın kendisi değişince de yeniden ölçekle.
+if (window.ResizeObserver) new ResizeObserver(resize).observe(safeBox);
 // Ekran oranı yüklemeden sonra farklı çıkarsa (ana sayfadayken) bir kez yeniden yükle ki boy doğru olsun.
 addEventListener('resize', () => {
   const [ww, wh] = sizeFor(ratioOf(innerHeight, innerWidth));
