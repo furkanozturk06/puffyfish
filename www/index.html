@@ -1084,7 +1084,11 @@ function drawShop() {
   });
   if (SHOP_PAGES > 1) { button(BTN.prev, '<'); button(BTN.next, '>'); }
   refreshAdDay();
-  button(BTN.adShop, L('watchAd'));
+  // "REKLAM İZLE +5" ve yanında altın simgesi
+  const ab = BTN.adShop, al = L('watchAd'), aw = textSprite(al, 1, '#e07b39').w, ax = Math.round(ab.x + (ab.w - aw - 3 - COIN.c.width) / 2);
+  panel(ab.x, ab.y, ab.w, ab.h);
+  txt(al, ax, ab.y + Math.round((ab.h - 7) / 2), 1, '#e07b39', null, 'left');
+  g.drawImage(COIN.c, ax + aw + 3, ab.y + Math.round((ab.h - 7) / 2) + 1);
   txt(L('adLeft') + ' ' + adLeft + '/' + AD_DAILY, W / 2, 290, 1, adLeft > 0 ? '#bfe0ff' : '#ff8a6e');
   if (shopMsg) {
     const y = 302, col = shopMsg.good ? '#7ee08f' : '#ff8a6e';
