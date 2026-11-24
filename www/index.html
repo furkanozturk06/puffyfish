@@ -477,8 +477,14 @@ function refreshAdDay() {
   if (d !== adDay) { adDay = d; adLeft = AD_DAILY; save('sis_ad_day', adDay); save('sis_ad_left', adLeft); }
 }
 refreshAdDay();
-const prepInter = () => native('AdMob', 'prepareInterstitial', { adId: AD_IDS.inter });
-const prepReward = () => native('AdMob', 'prepareRewardVideoAd', { adId: AD_IDS.reward });
+// Türkiye'deki oyunculara kişiselleştirilmemiş reklam (KVKK: kişiselleştirme açık rıza ister).
+// Ağ isteği yapmadan cihazın saat dilimi ve bölge ayarına bakılır.
+const IN_TR = (() => {
+  try { if (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Europe/Istanbul') return true; } catch (e) {}
+  return (navigator.languages || [navigator.language]).some(l => /[-_]TR$/i.test(l || ''));
+})();
+const prepInter = () => native('AdMob', 'prepareInterstitial', { adId: AD_IDS.inter, npa: IN_TR });
+const prepReward = () => native('AdMob', 'prepareRewardVideoAd', { adId: AD_IDS.reward, npa: IN_TR });
 function adFinished() {
   const done = adDone; adDone = null; adBusy = false;
   if (done) done(adRewarded);
@@ -493,7 +499,7 @@ function setupAds() {
     .then(info => {
       privacyRequired = !!(info && info.privacyOptionsRequirementStatus === 'REQUIRED');
       if (info && info.canRequestAds === false) return;
-      return (IOS ? native('AdMob', 'requestTrackingAuthorization') : Promise.resolve())
+      return (IOS && !IN_TR ? native('AdMob', 'requestTrackingAuthorization') : Promise.resolve())   // Türkiye'de takip izni sorulmaz
         .then(() => native('AdMob', 'initialize', {}))
         .then(() => { prepInter(); prepReward(); });
     });
