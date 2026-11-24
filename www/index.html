@@ -98,7 +98,7 @@ const STR = {
     best: 'EN İYİ', score: 'SKOR', new: 'YENİ!', retry: 'TEKRAR', home: 'ANA SAYFA', eaten: 'YEM OLDUN', starved: 'AÇ KALDIN',
     go: 'BAŞLA!', yum: 'HAM', away: 'KAÇTI', close: 'KILPAYI', nice: 'İYİ', combo: 'KOMBO', comboLost: 'KOMBO BİTTİ', ouch: 'AH!',
     paused: 'DURAKLATILDI', resume: 'DEVAM İÇİN DOKUN', selected: 'SEÇİLİ', select: 'SEÇ', bought: 'SATIN ALINDI!', noCoins: 'YETERSİZ ALTIN',
-    privacyLink: 'GİZLİLİK', kvkkLink: 'AYDINLATMA METNİ', watchAd: 'REKLAM İZLE +5', adLeft: 'GÜNLÜK HAK', double: 'REKLAM İZLE: 2X ALTIN', doubled: 'ALTIN 2 KATI!', adFail: 'REKLAM YOK, SONRA DENE', ad: 'REKLAM', noAdsLeft: 'YARIN YENİ HAK',
+    legalLink: 'AYDINLATMA METNİ', watchAd: 'REKLAM İZLE +5', adLeft: 'GÜNLÜK HAK', double: 'REKLAM İZLE: 2X ALTIN', doubled: 'ALTIN 2 KATI!', adFail: 'REKLAM YOK, SONRA DENE', ad: 'REKLAM', noAdsLeft: 'YARIN YENİ HAK',
     z0: 'SIĞ SULAR', z1: 'MERCAN RESİFİ', z2: 'AÇIK DENİZ', z3: 'DERİN DENİZ',
     t0: ['BU SENSİN: PUFFY FISH', 'BÜYÜKLERE ŞİŞ, KÜÇÜKLERİ YE'],
     t1: ['BÜYÜK BALIK! ÜSTÜNDEKİ NOKTALARA BAK', 'HER DOKUNUŞ 1 NOKTA ŞİŞİRİR'], t1ok: ['AFERİN! DOKUNMAZSAN YAVAŞÇA SÖNERSİN'],
@@ -114,7 +114,7 @@ const STR = {
     best: 'BEST', score: 'SCORE', new: 'NEW!', retry: 'RETRY', home: 'MENU', eaten: 'EATEN!', starved: 'STARVED!',
     go: 'GO!', yum: 'YUM', away: 'GOT AWAY', close: 'CLOSE CALL', nice: 'NICE', combo: 'COMBO', comboLost: 'COMBO LOST', ouch: 'OUCH!',
     paused: 'PAUSED', resume: 'TAP TO RESUME', selected: 'EQUIPPED', select: 'EQUIP', bought: 'PURCHASED!', noCoins: 'NOT ENOUGH COINS',
-    privacyLink: 'PRIVACY POLICY', kvkkLink: '', watchAd: 'WATCH AD +5', adLeft: 'DAILY', double: 'WATCH AD: 2X COINS', doubled: 'COINS DOUBLED!', adFail: 'NO AD, TRY LATER', ad: 'AD', noAdsLeft: 'MORE TOMORROW',
+    legalLink: 'PRIVACY POLICY', watchAd: 'WATCH AD +5', adLeft: 'DAILY', double: 'WATCH AD: 2X COINS', doubled: 'COINS DOUBLED!', adFail: 'NO AD, TRY LATER', ad: 'AD', noAdsLeft: 'MORE TOMORROW',
     z0: 'SHALLOWS', z1: 'CORAL REEF', z2: 'OPEN SEA', z3: 'DEEP SEA',
     t0: ['THIS IS YOU: PUFFY FISH', 'PUFF UP AT BIG FISH, EAT SMALL ONES'],
     t1: ['BIG FISH! COUNT THE DOTS ABOVE IT', 'EACH TAP ADDS ONE DOT TO YOU'], t1ok: ['NICE! STOP TAPPING AND YOU DEFLATE'],
@@ -667,7 +667,7 @@ const SHOP_PAGES = Math.ceil(SKINS.length / SHOP_PAGE);
 // Ana sayfanın altındaki yasal metin bağlantıları (tarayıcıda açılır)
 const LEGAL_URL = 'https://furkanozturk06.github.io/puffyfish/';
 function legalLinks() {
-  const items = [[L('privacyLink'), lang === 'tr' ? 'gizlilik.html' : 'privacy.html'], [L('kvkkLink'), 'aydinlatma.html']].filter(([t]) => t);
+  const items = [[L('legalLink'), lang === 'tr' ? 'aydinlatma.html' : 'privacy.html']];   // tek bağlantı
   const gap = 14, ws = items.map(([t]) => textSprite(t, 1, '#d6ecff').w), total = ws.reduce((a, b) => a + b, 0) + gap * (items.length - 1);
   let x = Math.round(W / 2 - total / 2);
   return items.map(([t, page], i) => { const r = { t, url: LEGAL_URL + page, x: x - 2, y: BTN.howto.y + 23, w: ws[i] + 4, h: 12 }; x += ws[i] + gap; return r; });
