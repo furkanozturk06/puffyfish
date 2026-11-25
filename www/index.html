@@ -775,10 +775,10 @@ function update(dt) {
   for (const f of fish) {
     f.x += (f.flee ? speed * 0.9 : -speed) * mdt;
     f.y += f.vy * mdt;
-    // Yırtıcı yaklaşırken sen onun hizasının altındaysan sana doğru dalar; yetişip çıkarsan hizasına döner.
+    // Yırtıcı kendi hizasında yüzer; ancak seni yemek üzereyken (son anda) sen altındaysan sana doğru atılır.
     if (!tutorial && !f.flee && !f.done && !f.sp.food) {   // eğitimde balık hizasında bekler
-      const near = f.x - f.front - (PX + r) < 80, ty = near && stage < f.cls ? PY : laneY(f.cls);
-      f.y += (ty - f.y) * Math.min(1, mdt * 6);
+      const strike = f.x - f.front - (PX + r) < 30 && stage < f.cls, ty = strike ? PY : laneY(f.cls);
+      f.y += (ty - f.y) * Math.min(1, mdt * (strike ? 14 : 6));
     }
     if (f.done || f.x - f.front > PX + r) continue;
 
