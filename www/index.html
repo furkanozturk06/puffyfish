@@ -38,13 +38,18 @@ const sizeFor = r => (r > 0 && r < 16 / 9
   : [180, Math.max(320, Math.min(420, Math.round(180 * (r || 16 / 9))))]);
 const [W, H] = sizeFor(Math.max(ratioOf(innerHeight, innerWidth), ratioOf(screen.height, screen.width)));
 const SAND_Y = H - 14;
-const PX = 58, PY = Math.round(H * 0.55);          // balon balığının yeri
+const PX = 58;                                      // balon balığının yatay yeri (dikey yeri kademeye göre)
 
 // Kademeler: 0 = sönük (yem yiyebilir), 1-5 şişkin.
 // Her dokunuş 1 kademe şişirir; dokunulmazsa DEFLATE_SECS'te bir 1 kademe söner.
 const STAGE_R = [7, 13, 19, 26, 33, 41];
 const MAX_STAGE = 5, DEFLATE_SECS = 0.38;
 const R_MIN = STAGE_R[0], R_MAX = STAGE_R[MAX_STAGE];
+// Hizalar: kademe 0 en altta (yemler de burada yüzer), her kademe bir üst hiza.
+// N noktalı yırtıcı N. hizadan gelir; N kez basınca balon balığı o hizaya çıkar.
+const LANE_BOT = SAND_Y - R_MIN - 8, LANE_TOP = Math.round(H * 0.25);
+const laneY = s => Math.round(LANE_BOT - (LANE_BOT - LANE_TOP) * s / MAX_STAGE);
+let PY = laneY(0);                                  // balon balığının dikey yeri (hizasına doğru kayar)
 const FOOD_CHANCE = 0.4;
 const HUNGER_SECS = 22;            // hiç yemeden dayanma süresi
 const FOOD = 0.4;                  // bir yemin doldurduğu açlık oranı
@@ -101,7 +106,7 @@ const STR = {
     legalLink: 'AYDINLATMA METNİ', watchAd: 'REKLAM İZLE +5', adLeft: 'GÜNLÜK HAK', double: 'REKLAM İZLE: 2X ALTIN', doubled: 'ALTIN 2 KATI!', adFail: 'REKLAM YOK, SONRA DENE', ad: 'REKLAM', noAdsLeft: 'YARIN YENİ HAK',
     z0: 'SIĞ SULAR', z1: 'MERCAN RESİFİ', z2: 'AÇIK DENİZ', z3: 'DERİN DENİZ',
     t0: ['BU SENSİN: PUFFY FISH', 'BÜYÜKLERE ŞİŞ, KÜÇÜKLERİ YE'],
-    t1: ['BÜYÜK BALIK! ÜSTÜNDEKİ NOKTALARA BAK', 'HER DOKUNUŞ 1 NOKTA ŞİŞİRİR'], t1ok: ['AFERİN! DOKUNMAZSAN YAVAŞÇA SÖNERSİN'],
+    t1: ['BÜYÜK BALIK! ÜSTÜNDEKİ NOKTALARA BAK', 'HER DOKUNUŞ 1 NOKTA ŞİŞİRİR VE YUKARI ÇIKARIR'], t1ok: ['AFERİN! DOKUNMAZSAN SÖNÜP AŞAĞI İNERSİN'],
     t1fail: 'OLMADI, TEKRAR DENE',
     t2: ['KÜÇÜK BALIK GELİYOR!', 'DOKUNMA: TAMAMEN SÖN VE YE'], t2ok: ['YEDİKÇE AÇLIK ÇUBUĞU DOLAR', 'BOŞALIRSA AÇ KALIRSIN'],
     t2fail: 'KAÇTI! TAMAMEN SÖNMELİSİN',
@@ -117,7 +122,7 @@ const STR = {
     legalLink: 'PRIVACY POLICY', watchAd: 'WATCH AD +5', adLeft: 'DAILY', double: 'WATCH AD: 2X COINS', doubled: 'COINS DOUBLED!', adFail: 'NO AD, TRY LATER', ad: 'AD', noAdsLeft: 'MORE TOMORROW',
     z0: 'SHALLOWS', z1: 'CORAL REEF', z2: 'OPEN SEA', z3: 'DEEP SEA',
     t0: ['THIS IS YOU: PUFFY FISH', 'PUFF UP AT BIG FISH, EAT SMALL ONES'],
-    t1: ['BIG FISH! COUNT THE DOTS ABOVE IT', 'EACH TAP ADDS ONE DOT TO YOU'], t1ok: ['NICE! STOP TAPPING AND YOU DEFLATE'],
+    t1: ['BIG FISH! COUNT THE DOTS ABOVE IT', 'EACH TAP ADDS A DOT AND LIFTS YOU UP'], t1ok: ['NICE! STOP TAPPING AND YOU SINK BACK DOWN'],
     t1fail: 'OOPS, TRY AGAIN',
     t2: ['SMALL FISH INCOMING!', 'STOP TAPPING: DEFLATE AND EAT IT'], t2ok: ['EATING FILLS YOUR HUNGER BAR', 'IF IT RUNS OUT, YOU STARVE'],
     t2fail: 'IT GOT AWAY! DEFLATE FULLY',
@@ -563,7 +568,7 @@ function makeFish(sp, c) {
   let k = sp.food ? 1 : Math.max(1, Math.round(2 * (STAGE_R[c] - 2) / bh));
   k = Math.max(1, Math.min(k, Math.floor(W * 1.5 / im.width)));      // ekrandan çok taşmasın
   const ax = (b.x0 + b.x1 + 1) / 2 * k, ay = (b.y0 + b.y1 + 1) / 2 * k, hl = bw * k / 2;
-  return { sp, cls: c, k, s: bh * k / 2, hl, ax, ay, front: REACH.has(sp.id) ? ax : hl, x: W + ax + 6, y: PY, vy: 0,
+  return { sp, cls: c, k, s: bh * k / 2, hl, ax, ay, front: REACH.has(sp.id) ? ax : hl, x: W + ax + 6, y: laneY(sp.food ? 0 : c), vy: 0,
            flee: false, done: false, eaten: false, ph: rnd(0, 6) };
 }
 // Sıradaki balığı seç: üst üste en fazla 3 yırtıcı, 2 yem; türler bölgeye göre açılır.
@@ -578,7 +583,7 @@ function goMenu() {
   state = 'menu'; fish = []; pops = []; parts = []; zone = 0; prevZone = 0; zoneFade = 1; eaten = false;
 }
 function start() {
-  stage = 0; r = R_MIN; deflT = 0; score = 0; count = 0; hunger = 1; zone = 0; prevZone = 0; zoneFade = 1;
+  stage = 0; r = R_MIN; PY = laneY(0); deflT = 0; score = 0; count = 0; hunger = 1; zone = 0; prevZone = 0; zoneFade = 1;
   predRow = 0; foodRow = 0; combo = 0; maxCombo = 0; comboPulse = 0; earned = 0;
   pops = []; parts = []; fish = []; banner = null; eaten = false; newBest = false;
   speed = SPEED_START;
@@ -744,6 +749,7 @@ function update(dt) {
   deflT += dt;
   if (stage > 0 && deflT >= DEFLATE_SECS) { stage--; deflT = 0; sfx(260 + stage * 40, 160, 0.07, 'triangle', 0.02); }
   r += (STAGE_R[stage] - r) * Math.min(1, dt * 16);
+  PY += (laneY(stage) - PY) * Math.min(1, dt * 10);   // kademesinin hizasına çık / in
 
   const tutorial = state === 'tut';
   let mdt = dt;                    // balıkların zamanı (eğitimde durabilir)
@@ -930,13 +936,13 @@ function drawBadges() {
     const close = f.x - f.front - (PX + r) < 90;
     const bounce = danger && close ? -Math.round(Math.abs(Math.sin(time * 10)) * 2) : 0;
     const k = f.sp.food ? 1 : 2, w = sp.c.width * k, h = sp.c.height * k;   // nokta rozetleri 2 kat büyük
-    const y = Math.max(64, Math.round(f.y + Math.sin(time * 2 + f.ph) * 1.5 - f.s - 6 - h)) + bounce;
+    const y = Math.max(30, Math.round(f.y + Math.sin(time * 2 + f.ph) * 1.5 - f.s - 6 - h)) + bounce;
     // Başa yakın dursun ama ekranın sağından taşmasın: uzun burunlu balıkta da burun girer girmez görünür.
     const bx = Math.min(W - w - 3, Math.round(f.x - f.hl * 0.7 - w / 2));
     g.drawImage(sp.c, bx, y, w, h);
   }
   if (!eaten) {
-    const m = BADGE.me[stage], w = m.c.width * 2, h = m.c.height * 2, by = Math.max(64, Math.round(PY - r - 8 - h));
+    const m = BADGE.me[stage], w = m.c.width * 2, h = m.c.height * 2, by = Math.max(30, Math.round(PY - r - 8 - h));
     g.drawImage(m.c, Math.round(PX - w / 2), by, w, h);
   }
 }
@@ -1134,7 +1140,7 @@ function drawTut() {
   if (tut.phase === 'go' && !st.need()) drawHand(W - 22, 100, st.hand);
   if (tut.phase === 'ok' && st.arrow) drawArrow(51, 17 - bob, true);
   if (tut.lines) {
-    const fail = tut.phase === 'fail', rows = wrap(tut.lines, W - 20), h = 10 + rows.length * 11, py = PY + 59;
+    const fail = tut.phase === 'fail', rows = wrap(tut.lines, W - 20), h = 10 + rows.length * 11, py = 48;
     panel(6, py, W - 12, h);
     rows.forEach((l, i) => txt(l.s, W / 2, py + 6 + i * 11, 1,
       l.k === 0 ? (fail ? '#ff8a6e' : '#ffe066') : '#ffffff', l.k === 0 ? (fail ? '#e5533c' : '#f5a623') : null));
