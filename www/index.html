@@ -47,7 +47,7 @@ const MAX_STAGE = 5, DEFLATE_SECS = 0.38;
 const R_MIN = STAGE_R[0], R_MAX = STAGE_R[MAX_STAGE];
 // Hizalar: kademe 0 en altta (yemler de burada yüzer), her kademe bir üst hiza.
 // N noktalı yırtıcı N. hizadan gelir; N kez basınca balon balığı o hizaya çıkar.
-const LANE_BOT = SAND_Y - 42, LANE_TOP = Math.round(H * 0.25);
+const LANE_BOT = SAND_Y - 42, LANE_TOP = 110;   // üst hiza: en şişkin balık ve rozeti skorun altında kalsın
 const laneY = s => Math.round(LANE_BOT - (LANE_BOT - LANE_TOP) * s / MAX_STAGE);
 let PY = laneY(0);                                  // balon balığının dikey yeri (hizasına doğru kayar)
 const FOOD_CHANCE = 0.4;
@@ -775,6 +775,11 @@ function update(dt) {
   for (const f of fish) {
     f.x += (f.flee ? speed * 0.9 : -speed) * mdt;
     f.y += f.vy * mdt;
+    // Yırtıcı yaklaşırken sen onun hizasının altındaysan sana doğru dalar; yetişip çıkarsan hizasına döner.
+    if (!tutorial && !f.flee && !f.done && !f.sp.food) {   // eğitimde balık hizasında bekler
+      const near = f.x - f.front - (PX + r) < 80, ty = near && stage < f.cls ? PY : laneY(f.cls);
+      f.y += (ty - f.y) * Math.min(1, mdt * 6);
+    }
     if (f.done || f.x - f.front > PX + r) continue;
 
     // Balık bize değdi
@@ -1137,7 +1142,7 @@ function drawTut() {
   button(BTN.skip, L('skip'));
   const bob = Math.round(Math.sin(time * 6) * 2);
   if (tut.phase === 'intro') drawArrow(PX, PY - r - 8 + bob, false);
-  if (tut.phase === 'go' && !st.need()) drawHand(W - 22, 100, st.hand);
+  if (tut.phase === 'go' && !st.need()) drawHand(W - 22, 126, st.hand);
   if (tut.phase === 'ok' && st.arrow) drawArrow(51, 17 - bob, true);
   if (tut.lines) {
     const fail = tut.phase === 'fail', rows = wrap(tut.lines, W - 20), h = 10 + rows.length * 11, py = 48;
