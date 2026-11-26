@@ -18,5 +18,7 @@
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <!-- Android 12 ve üstü açılışta yalnızca simgeyi gösterir: zemin koyu değil, oyunun deniz mavisi olsun -->
+        <item name="windowSplashScreenBackground">#1f86b5</item>
     </style>
 </resources>
