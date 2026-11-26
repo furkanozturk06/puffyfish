@@ -4,7 +4,8 @@ A pixel-art arcade game about a pufferfish. Tap to puff up one level at a time, 
 
 ## How to play
 
-- Every tap puffs you up one level (0–5). Stop tapping and you slowly deflate.
+- Every tap puffs you up one level (0–5) and lifts you one lane higher. Stop tapping and you deflate and sink back down.
+- Each fish swims in the lane that matches its size: small fish at the bottom, 5-dot predators at the top.
 - Each predator shows dots for its size (1–5). Have at least as many dots as it does to survive.
 - Match its dots exactly for a close call: +5 points and a combo multiplier.
 - Fully deflate (level 0) to eat small fish and keep your hunger bar from running out.
@@ -20,7 +21,7 @@ A pixel-art arcade game about a pufferfish. Tap to puff up one level at a time, 
 
 ## Run in a browser
 
-Open `www/index.html`. Best played in landscape.
+Open `www/index.html`. The game is played in portrait.
 
 ## Build for mobile
 
@@ -28,7 +29,7 @@ Open `www/index.html`. Best played in landscape.
 npm install
 npm run sync        # copy www/ into the native projects
 npm run android     # open in Android Studio (Windows, macOS or Linux)
-npm run ios         # open in Xcode (macOS only)
+npm run ios         # open in Xcode (macOS only; release builds run on Codemagic, see codemagic.yaml)
 npm run assets      # regenerate icons and splash screens from assets/
 ```
 

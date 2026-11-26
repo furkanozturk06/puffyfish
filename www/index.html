@@ -474,8 +474,9 @@ const AD_IDS = IOS
   ? { inter: 'ca-app-pub-3940256099942544/4411468910', reward: 'ca-app-pub-3940256099942544/1712485313' }
   : { inter: 'ca-app-pub-3940256099942544/1033173712', reward: 'ca-app-pub-3940256099942544/5224354917' };
 const INTER_EVERY = 2;              // kaç oyunda bir geçiş reklamı
+const INTER_GAP_MS = 60000;         // iki reklam arasında en az 60 sn (açılıştan sonraki ilk 60 sn de reklamsız)
 const AD_DAILY = 5, AD_COINS = 5;   // mağazada günlük reklam hakkı ve reklam başına altın
-let gamesSinceAd = 0, adBusy = false, adDone = null, adRewarded = false, fakeAd = null;
+let gamesSinceAd = 0, lastAdAt = performance.now(), adBusy = false, adDone = null, adRewarded = false, fakeAd = null;
 let adDay = load('sis_ad_day', ''), adLeft = +load('sis_ad_left', AD_DAILY);
 function refreshAdDay() {
   const d = new Date().toDateString();
@@ -491,7 +492,7 @@ const IN_TR = (() => {
 const prepInter = () => native('AdMob', 'prepareInterstitial', { adId: AD_IDS.inter, npa: IN_TR });
 const prepReward = () => native('AdMob', 'prepareRewardVideoAd', { adId: AD_IDS.reward, npa: IN_TR });
 function adFinished() {
-  const done = adDone; adDone = null; adBusy = false;
+  const done = adDone; adDone = null; adBusy = false; lastAdAt = performance.now();
   if (done) done(adRewarded);
 }
 // Reklamlardan önce izin (Avrupa vb. için Google'ın izin penceresi; gerekmeyen ülkelerde hiçbir şey çıkmaz).
@@ -540,7 +541,7 @@ function drawFakeAd() {
 }
 // Oyun bitince basılan tuştan sonra: her INTER_EVERY oyunda bir geçiş reklamı, sonra devam.
 function afterGame(next) {
-  if (gamesSinceAd >= INTER_EVERY) { gamesSinceAd = 0; showAd('inter', next); } else next();
+  if (gamesSinceAd >= INTER_EVERY && performance.now() - lastAdAt >= INTER_GAP_MS) { gamesSinceAd = 0; showAd('inter', next); } else next();
 }
 function watchForCoins() {
   refreshAdDay();

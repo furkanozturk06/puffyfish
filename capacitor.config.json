@@ -3,7 +3,7 @@
   "appName": "Puffy Fish",
   "webDir": "www",
   "backgroundColor": "#08111c",
-  "ios": { "contentInset": "never" },
+  "ios": { "contentInset": "never", "scrollEnabled": false },
   "android": { "backgroundColor": "#08111c" },
   "plugins": {
     "SplashScreen": { "launchShowDuration": 800, "backgroundColor": "#1f86b5", "showSpinner": false }
