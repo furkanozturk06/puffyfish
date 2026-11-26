@@ -99,10 +99,11 @@ const DEAD_SKIN = { body: '#b8bec6', shade: '#959ca6', lite: '#d4d8dd', belly: '
 const STR = {
   tr: {
     title: 'PUFFY FISH', doc: 'Puffy Fish', tagline: 'BÜYÜKLERE ŞİŞ, KÜÇÜKLERİ YE', play: 'OYNA', shop: 'MAĞAZA',
-    howto: 'NASIL OYNANIR?', howtoTitle: 'NASIL OYNANIR', back: 'GERİ', skip: 'GEÇ', lang: 'EN', rotate: 'TELEFONU YAN ÇEVİR',
+    howto: 'NASIL OYNANIR?', howtoTitle: 'NASIL OYNANIR', back: 'GERİ', skip: 'GEÇ', rotate: 'TELEFONU YAN ÇEVİR',
     best: 'EN İYİ', score: 'SKOR', new: 'YENİ!', retry: 'TEKRAR', home: 'ANA SAYFA', eaten: 'YEM OLDUN', starved: 'AÇ KALDIN',
     go: 'BAŞLA!', yum: 'HAM', away: 'KAÇTI', close: 'KILPAYI', nice: 'İYİ', combo: 'KOMBO', comboLost: 'KOMBO BİTTİ', ouch: 'AH!',
     paused: 'DURAKLATILDI', resume: 'DEVAM İÇİN DOKUN', selected: 'SEÇİLİ', select: 'SEÇ', bought: 'SATIN ALINDI!', noCoins: 'YETERSİZ ALTIN',
+    settings: 'AYARLAR', langName: 'DİL: TÜRKÇE', vib: 'TİTREŞİM', on: 'AÇIK', off: 'KAPALI', adPrivacy: 'REKLAM GİZLİLİĞİ',
     legalLink: 'AYDINLATMA METNİ', watchAd: 'REKLAM İZLE +5', adLeft: 'GÜNLÜK HAK', double: 'REKLAM İZLE: 2X ALTIN', doubled: 'ALTIN 2 KATI!', adFail: 'REKLAM YOK, SONRA DENE', ad: 'REKLAM', noAdsLeft: 'YARIN YENİ HAK',
     z0: 'SIĞ SULAR', z1: 'MERCAN RESİFİ', z2: 'AÇIK DENİZ', z3: 'DERİN DENİZ',
     t0: ['BU SENSİN: PUFFY FISH', 'BÜYÜKLERE ŞİŞ, KÜÇÜKLERİ YE'],
@@ -115,10 +116,11 @@ const STR = {
   },
   en: {
     title: 'PUFFY FISH', doc: 'Puffy Fish', tagline: 'PUFF UP AT BIG FISH, EAT SMALL ONES', play: 'PLAY', shop: 'SHOP',
-    howto: 'HOW TO PLAY?', howtoTitle: 'HOW TO PLAY', back: 'BACK', skip: 'SKIP', lang: 'TR', rotate: 'TURN YOUR PHONE SIDEWAYS',
+    howto: 'HOW TO PLAY?', howtoTitle: 'HOW TO PLAY', back: 'BACK', skip: 'SKIP', rotate: 'TURN YOUR PHONE SIDEWAYS',
     best: 'BEST', score: 'SCORE', new: 'NEW!', retry: 'RETRY', home: 'MENU', eaten: 'EATEN!', starved: 'STARVED!',
     go: 'GO!', yum: 'YUM', away: 'GOT AWAY', close: 'CLOSE CALL', nice: 'NICE', combo: 'COMBO', comboLost: 'COMBO LOST', ouch: 'OUCH!',
     paused: 'PAUSED', resume: 'TAP TO RESUME', selected: 'EQUIPPED', select: 'EQUIP', bought: 'PURCHASED!', noCoins: 'NOT ENOUGH COINS',
+    settings: 'SETTINGS', langName: 'LANGUAGE: ENGLISH', vib: 'VIBRATION', on: 'ON', off: 'OFF', adPrivacy: 'AD PRIVACY',
     legalLink: 'PRIVACY POLICY', watchAd: 'WATCH AD +5', adLeft: 'DAILY', double: 'WATCH AD: 2X COINS', doubled: 'COINS DOUBLED!', adFail: 'NO AD, TRY LATER', ad: 'AD', noAdsLeft: 'MORE TOMORROW',
     z0: 'SHALLOWS', z1: 'CORAL REEF', z2: 'OPEN SEA', z3: 'DEEP SEA',
     t0: ['THIS IS YOU: PUFFY FISH', 'PUFF UP AT BIG FISH, EAT SMALL ONES'],
@@ -142,6 +144,7 @@ let owned = load('sis_owned', ['klasik']);
 const OLD_ORDER = ['klasik', 'seker', 'buz', 'zehir', 'gece', 'altin'];
 let skin = Math.max(0, SKINS.findIndex(s => s.id === load('sis_skin_id', OLD_ORDER[+load('sis_skin', 0)] || 'klasik')));
 let tutSeen = !!load('sis_tut', false);
+let vibOn = load('sis_vib', true) !== false;   // titreşim ayarı
 let lang = load('sis_lang', (navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en');
 if (!STR[lang]) lang = 'en';
 if (!SKINS[skin] || !owned.includes(SKINS[skin].id)) skin = 0;
@@ -262,6 +265,12 @@ const HAND = bake(18, 28, 6, 1, c => {
 const ARROW = bake(12, 15, 6, 14, c => {
   Rect(c, -2, -14, 4, 8, '#ffe066'); P(c, '#ffe066', [-5.5, -7, 5.5, -7, 0, 0]);
   Rect(c, 0, -14, 2, 8, '#f5a623'); P(c, '#f5a623', [0, -7, 5.5, -7, 0, 0]);
+});
+// Ayarlar çarkı: dişli gövde, ortası delik
+const GEAR = bake(12, 12, 6, 6, c => {
+  for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; E(c, Math.cos(a) * 4.6, Math.sin(a) * 4.6, 1.5, 1.5, '#e07b39'); }
+  E(c, 0, 0, 4.4, 4.4, '#e07b39');
+  c.globalCompositeOperation = 'destination-out'; E(c, 0, 0, 1.7, 1.7, '#000'); c.globalCompositeOperation = 'source-over';
 });
 const COIN = bake(7, 7, 0, 0, c => { E(c, 3.5, 3.5, 3.5, 3.5, '#e0a01e'); E(c, 3, 3, 2.4, 2.4, '#ffe066'); Rect(c, 3, 2, 1, 3, '#e0a01e'); });
 
@@ -450,8 +459,10 @@ function onNative(pluginName, eventName, fn) {
   if (!isNative || !Cap.nativeCallback) return;
   try { Cap.nativeCallback(pluginName, 'addListener', { eventName }, fn); } catch (e) {}
 }
+// Hafif titreşim (ayarlardan kapatılabilir).
 function vibrate(ms) {
-  if (isNative) { native('Haptics', 'impact', { style: ms > 60 ? 'HEAVY' : 'LIGHT' }); return; }
+  if (!vibOn) return;
+  if (isNative) { native('Haptics', 'impact', { style: 'LIGHT' }); return; }
   if (navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {}
 }
 let paused = false;
@@ -598,7 +609,7 @@ function die(msg) {
   coins += earned; save('sis_coins', coins);
   if (score > best) { best = score; newBest = true; save('sis_deniz_best', best); }
   sfx(300, 60, 0.45, 'sawtooth', 0.12);
-  vibrate(120);
+  vibrate(40);
 }
 
 function puff() {
@@ -660,8 +671,11 @@ function tutUpdate(dt) {
 
 // ---------- Giriş ----------
 const BTN = {
-  lang:  { x: 4, y: 4, w: 24, h: 16 },
-  privacy: { x: 30, y: 4, w: 16, h: 16 },
+  settings: { x: 4, y: 4, w: 20, h: 18 },
+  sLang: { x: W / 2 - 70, y: 74, w: 140, h: 22 },
+  sVib:  { x: W / 2 - 70, y: 104, w: 140, h: 22 },
+  sLegal: { x: W / 2 - 70, y: 134, w: 140, h: 22 },
+  sPriv: { x: W / 2 - 70, y: 164, w: 140, h: 22 },
   play:  { x: W / 2 - 50, y: 212, w: 100, h: 26 },
   shop:  { x: W / 2 - 50, y: 246, w: 100, h: 18 },
   howto: { x: W / 2 - 50, y: 270, w: 100, h: 18 },
@@ -676,14 +690,8 @@ const BTN = {
 };
 const SHOP_PAGES = Math.ceil(SKINS.length / SHOP_PAGE);
 // Mağaza kartları sayfa sayfa: her sayfada 2 sütun x 3 satır, ucuzdan pahalıya.
-// Ana sayfanın altındaki yasal metin bağlantıları (tarayıcıda açılır)
-const LEGAL_URL = 'https://furkanozturk06.github.io/puffyfish/';
-function legalLinks() {
-  const items = [[L('legalLink'), lang === 'tr' ? 'privacy.html#tr' : 'privacy.html#en']];   // tek sayfa: İngilizce üstte, Türkçe altta
-  const gap = 14, ws = items.map(([t]) => textSprite(t, 1, '#d6ecff').w), total = ws.reduce((a, b) => a + b, 0) + gap * (items.length - 1);
-  let x = Math.round(W / 2 - total / 2);
-  return items.map(([t, page], i) => { const r = { t, url: LEGAL_URL + page, x: x - 2, y: BTN.howto.y + 23, w: ws[i] + 4, h: 12 }; x += ws[i] + gap; return r; });
-}
+// Aydınlatma metni / gizlilik politikası (tarayıcıda açılır): tek sayfa, İngilizce üstte, Türkçe altta
+const legalUrl = () => 'https://furkanozturk06.github.io/puffyfish/privacy.html' + (lang === 'tr' ? '#tr' : '#en');
 function openUrl(url) { if (isNative) location.href = url; else window.open(url, '_blank'); }
 const cardRect = i => { i %= SHOP_PAGE; return { x: Math.round(W / 2) - 82 + (i % 2) * 88, y: 48 + Math.floor(i / 2) * 74, w: 76, h: 66 }; };
 const pageSkins = () => SKINS.map((sk, i) => i).slice(shopPage * SHOP_PAGE, (shopPage + 1) * SHOP_PAGE);
@@ -701,12 +709,16 @@ function tap(p) {
   if (adBusy) return;
   if (paused) { paused = false; return; }
   if (state === 'menu') {
-    if (privacyRequired && inside(p, BTN.privacy)) { click(); native('AdMob', 'showPrivacyOptionsForm'); }
-    else if (inside(p, BTN.lang)) { lang = lang === 'tr' ? 'en' : 'tr'; save('sis_lang', lang); document.title = L('doc'); click(); }
+    if (inside(p, BTN.settings)) { state = 'settings'; click(); }
     else if (inside(p, BTN.shop)) { state = 'shop'; shopMsg = null; shopPage = Math.floor(skin / SHOP_PAGE); refreshAdDay(); click(); }
     else if (inside(p, BTN.howto)) { click(); startTutorial(); }
-    else if (legalLinks().some(l => inside(p, l) && (click(), openUrl(l.url), true))) {}
     else if (inside(p, BTN.play) || !p) { click(); if (tutSeen) start(); else startTutorial(); }
+  } else if (state === 'settings') {
+    if (inside(p, BTN.back) || !p) { goMenu(); click(); }
+    else if (inside(p, BTN.sLang)) { lang = lang === 'tr' ? 'en' : 'tr'; save('sis_lang', lang); document.title = L('doc'); click(); }
+    else if (inside(p, BTN.sVib)) { vibOn = !vibOn; save('sis_vib', vibOn); click(); vibrate(30); }
+    else if (inside(p, BTN.sLegal)) { click(); openUrl(legalUrl()); }
+    else if (privacyRequired && inside(p, BTN.sPriv)) { click(); native('AdMob', 'showPrivacyOptionsForm'); }
   } else if (state === 'shop') {
     if (inside(p, BTN.back) || !p) { goMenu(); click(); return; }
     if (inside(p, BTN.prev)) { shopPage = (shopPage + SHOP_PAGES - 1) % SHOP_PAGES; click(); return; }
@@ -794,6 +806,7 @@ function update(dt) {
         pop(L('yum') + ' +1', 1, '#a6f5b5', '#5fd87a');
         burst(cx, PY, 8, '#e8f8ff', 50);
         sfx(600, 1000, 0.08, 'square', 0.05);
+        vibrate(20);
         if (tutorial) tutResult(f, true);
       } else {
         f.flee = true; f.vy = side * 40;
@@ -889,13 +902,6 @@ function button(b, label, sc) {
   sc = sc || 1;
   panel(b.x, b.y, b.w, b.h);
   txt(label, b.x + b.w / 2, b.y + Math.round((b.h - 7 * sc) / 2), sc, sc > 1 ? '#ff9a3c' : '#e07b39', sc > 1 ? '#e0602a' : null);
-}
-// Gizlilik ayarları için küçük kağıt simgesi (köşesi kıvrık, üstünde yazı çizgileri)
-function drawPaper(x, y) {
-  g.fillStyle = INK; g.fillRect(x - 1, y - 1, 9, 13);
-  g.fillStyle = '#f6e7bf'; g.fillRect(x, y, 7, 11);
-  g.fillStyle = '#d08a3e'; g.fillRect(x + 5, y, 2, 2);
-  g.fillStyle = '#e07b39'; for (const ly of [3, 5, 7]) g.fillRect(x + 1, y + ly, ly === 7 ? 3 : 5, 1);
 }
 function drawCoins(xr, y, n) {
   const s = String(n), sp = textSprite(s, 1, '#ffe066');
@@ -1057,8 +1063,8 @@ function drawHud() {
 }
 
 function drawMenu() {
-  button(BTN.lang, L('lang'));
-  if (privacyRequired) drawPaper(BTN.privacy.x + 4, BTN.privacy.y + 2);
+  panel(BTN.settings.x, BTN.settings.y, BTN.settings.w, BTN.settings.h);   // ayarlar çarkı
+  g.drawImage(GEAR.c, BTN.settings.x + Math.round((BTN.settings.w - GEAR.c.width) / 2), BTN.settings.y + Math.round((BTN.settings.h - GEAR.c.height) / 2));
   drawCoins(W - 6, 8, coins);
   if (best) txt(L('best') + ' ' + best, W - 6, 20, 1, '#ffffff', null, 'right');
   const [t1, t2] = L('title').split(' ');
@@ -1071,10 +1077,16 @@ function drawMenu() {
   button(BTN.play, L('play'), 2);
   button(BTN.shop, L('shop'));
   button(BTN.howto, L('howto'));
-  for (const l of legalLinks()) {
-    txt(l.t, l.x + 2, l.y + 3, 1, '#d6ecff', null, 'left');
-    g.fillStyle = '#d6ecff'; g.fillRect(l.x + 2, l.y + 11, l.w - 4, 1);   // altı çizili: bağlantı
-  }
+}
+
+function drawSettings() {
+  g.fillStyle = 'rgba(4,16,34,0.45)'; g.fillRect(0, 0, W, H);
+  txt(L('settings'), W / 2, 30, 2, '#ffe066', '#f5a623');
+  button(BTN.back, L('back'));
+  button(BTN.sLang, L('langName'));
+  button(BTN.sVib, L('vib') + ': ' + L(vibOn ? 'on' : 'off'));
+  button(BTN.sLegal, L('legalLink'));
+  if (privacyRequired) button(BTN.sPriv, L('adPrivacy'));
 }
 
 // Uzun yazıları dar ekrana sığacak şekilde satırlara böler; k = kaçıncı kaynak satırdan geldiği.
@@ -1191,6 +1203,7 @@ function render() {
   drawWorld();
   if (state === 'menu') { g.restore(); drawMenu(); return; }
   if (state === 'shop') { g.restore(); drawShop(); return; }
+  if (state === 'settings') { g.restore(); drawSettings(); return; }
 
   for (const f of fish) drawFish(f);
   if (!eaten) drawPuffer(PX, PY, r, state === 'dead');
