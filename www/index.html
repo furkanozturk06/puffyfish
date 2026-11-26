@@ -679,7 +679,7 @@ const SHOP_PAGES = Math.ceil(SKINS.length / SHOP_PAGE);
 // Ana sayfanın altındaki yasal metin bağlantıları (tarayıcıda açılır)
 const LEGAL_URL = 'https://furkanozturk06.github.io/puffyfish/';
 function legalLinks() {
-  const items = [[L('legalLink'), lang === 'tr' ? 'privacy.html#tr' : 'privacy.html']];   // tek sayfa: İngilizce üstte, Türkçe altta
+  const items = [[L('legalLink'), lang === 'tr' ? 'privacy.html#tr' : 'privacy.html#en']];   // tek sayfa: İngilizce üstte, Türkçe altta
   const gap = 14, ws = items.map(([t]) => textSprite(t, 1, '#d6ecff').w), total = ws.reduce((a, b) => a + b, 0) + gap * (items.length - 1);
   let x = Math.round(W / 2 - total / 2);
   return items.map(([t, page], i) => { const r = { t, url: LEGAL_URL + page, x: x - 2, y: BTN.howto.y + 23, w: ws[i] + 4, h: 12 }; x += ws[i] + gap; return r; });
