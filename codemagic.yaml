@@ -1,0 +1,43 @@
+# iOS derlemesi Codemagic'te (bulutta bir Mac): oyunu imzalar ve App Store Connect / TestFlight'a yükler.
+# Hakim Koltuğu ve Axe Fury'de çalışan ayarla aynı yapı.
+#
+# İlk derlemeden önce:
+#   - Apple Developer'da com.furkanozturk.puffyfish paket kimliği ve App Store Connect'te bu kimlikle bir uygulama olmalı.
+#   - Codemagic > Team settings > Integrations > Developer Portal'daki "app-store-connect" anahtarı kullanılır (hesapta zaten var).
+workflows:
+  ios-testflight:
+    name: iOS TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: app-store-connect
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.furkanozturk.puffyfish
+      node: 22
+      xcode: latest
+    # tetikleyici yok: derleme Codemagic'ten elle başlatılır, her gönderimde değil
+    scripts:
+      - name: Paketleri kur
+        script: npm ci
+      - name: Oyunu iOS projesine aktar
+        # oyun www/ klasöründe hazır; ayrıca derleme adımı yok
+        script: npx cap sync ios
+      - name: İmza dosyalarını projeye uygula
+        script: xcode-project use-profiles --project ios/App/App.xcodeproj
+      - name: IPA oluştur
+        # her Codemagic derlemesi yeni bir derleme numarası alır; sürüm (1.0) projeden gelir
+        script: |
+          xcode-project build-ipa \
+            --project ios/App/App.xcodeproj \
+            --scheme App \
+            --archive-xcargs "CURRENT_PROJECT_VERSION=$BUILD_NUMBER"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        # derleme TestFlight'ın dahili test grubuna gider; dış test incelemesine gönderilmez
+        # (Hakim Koltuğu'nda bu açıkken hata vermişti)
+        submit_to_testflight: false
