@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Reklamlar (Google AdMob) kullanıcı izin verirse takip için reklam kimliğini kullanır.
-	     Google'ın takip alan adları kendi SDK gizlilik dosyasında bildirilir. -->
+	<!-- Oyunun kendi kodu takip yapmaz. Reklam takibini Google AdMob kendi SDK gizlilik dosyasında bildirir.
+	     true + boş alan adı listesi App Store'da ITMS-91064 ile reddedilir. -->
 	<key>NSPrivacyTracking</key>
-	<true/>
+	<false/>
 	<key>NSPrivacyTrackingDomains</key>
 	<array/>
 	<key>NSPrivacyCollectedDataTypes</key>
