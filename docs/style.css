@@ -17,3 +17,6 @@ nav a { color: #fff; margin: 0 8px; }
 table { border-collapse: collapse; width: 100%; font-size: 15px; }
 th, td { border: 1px solid #cfd8df; padding: 6px 8px; text-align: left; vertical-align: top; }
 th { background: #eef4f8; }
+.langs { margin: -8px 0 16px; }
+section#tr > .card, section#en { margin-bottom: 20px; }
+section#tr { scroll-margin-top: 8px; }

@@ -3,17 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy Policy – Puffy Fish</title>
+<title>Privacy Policy / Gizlilik Politikası – Puffy Fish</title>
 <link rel="stylesheet" href="style.css">
+<script>
+  // Türkçe için sayfa doğrudan Türkçe kısma iner: oyun #tr ile açar, ya da tarayıcı dili Türkçedir.
+  addEventListener('DOMContentLoaded', function () {
+    var h = location.hash, tr = h === '#tr' || (!h && /^tr/i.test(navigator.language || ''));
+    if (tr) document.getElementById('tr').scrollIntoView();
+  });
+</script>
 </head>
 <body>
 <main>
   <header><div class="logo">PUFFY FISH</div></header>
-  <div class="card">
+  <nav class="langs"><a href="#en">English</a> · <a href="#tr">Türkçe</a></nav>
+
+  <section id="en" class="card">
     <h1>Privacy Policy</h1>
     <p class="meta">Effective date: November 24, 2026</p>
 
-    <p>This policy explains what information is processed in Puffy Fish (the "Game"), a mobile game developed by Furkan Öztürk. Users in Turkey are also covered by the <a href="aydinlatma.html">KVKK Information Notice</a> (in Turkish).</p>
+    <p>This policy explains what information is processed in Puffy Fish (the "Game"), a mobile game developed by Furkan Öztürk. Users in Turkey are also covered by the <a href="#aydinlatma">KVKK Information Notice</a> (in Turkish, below on this page).</p>
 
     <h2>Summary</h2>
     <ul>
@@ -58,8 +67,138 @@
 
     <h2>Contact</h2>
     <p>Furkan Öztürk – <a href="mailto:furknozturk06@gmail.com">furknozturk06@gmail.com</a></p>
-  </div>
-  <nav><a href="gizlilik.html">Gizlilik Politikası (Türkçe)</a> · <a href="aydinlatma.html">KVKK Aydınlatma Metni</a></nav>
+  </section>
+
+  <section id="tr">
+    <div id="gizlilik" class="card">
+    <h1>Gizlilik Politikası</h1>
+    <p class="meta">Yürürlük tarihi: 24 Kasım 2026</p>
+
+    <p>Bu politika, Furkan Öztürk tarafından geliştirilen Puffy Fish mobil oyununda ("Oyun") hangi bilgilerin nasıl işlendiğini açıklar. Türkiye'deki kullanıcılar için ayrıca <a href="#aydinlatma">KVKK Aydınlatma Metni</a> geçerlidir.</p>
+
+    <h2>Özet</h2>
+    <ul>
+      <li>Oyun'da hesap, kayıt veya giriş yoktur.</li>
+      <li>Skorunuz, altınlarınız ve karakterleriniz yalnızca cihazınızda saklanır; bize gönderilmez.</li>
+      <li>Oyun ücretsizdir ve Google AdMob reklamları gösterir. Reklamlar için Google bazı cihaz verilerini işler.</li>
+      <li>Oyun içi satın alma, analiz aracı veya kendi sunucumuz yoktur.</li>
+    </ul>
+
+    <h2>Cihazınızda saklanan bilgiler</h2>
+    <p>En iyi skor, altın miktarı, satın alınan ve seçilen karakterler, dil tercihi, eğitimin görülüp görülmediği ve günlük reklam hakkı cihazınızın yerel hafızasında tutulur. Bu bilgiler cihazınızdan çıkmaz; Oyun'u sildiğinizde silinir.</p>
+
+    <h2>Reklamlar (Google AdMob)</h2>
+    <p>Oyun'da geçiş reklamları ve isteğe bağlı ödüllü reklamlar gösterilir. Bunun için Oyun'a gömülü Google Mobile Ads yazılımı şu bilgileri toplayıp Google'a iletebilir:</p>
+    <ul>
+      <li>Reklam kimliği (Android Reklam Kimliği / Apple IDFA),</li>
+      <li>IP adresi ve buna dayalı yaklaşık konum,</li>
+      <li>Cihaz modeli, işletim sistemi, dil ve ağ bilgileri,</li>
+      <li>Reklam etkileşimleri (görüntüleme, tıklama, ödüllü reklamın tamamlanması).</li>
+    </ul>
+    <p>Bu bilgiler reklam göstermek, reklamları ölçmek, dolandırıcılığı önlemek ve izin verdiyseniz reklamları kişiselleştirmek için kullanılır. Google bu bilgileri kendi politikalarına göre işler:
+      <a href="https://policies.google.com/privacy?hl=tr">Google Gizlilik Politikası</a>,
+      <a href="https://policies.google.com/technologies/partner-sites?hl=tr">Google iş ortaklarının uygulamalarında verileri nasıl kullanır</a>.</p>
+
+    <h2>İzin ve tercihleriniz</h2>
+    <ul>
+      <li>Avrupa Ekonomik Alanı, Birleşik Krallık ve İsviçre gibi izin gereken bölgelerde, Oyun ilk açılışta Google'ın izin penceresini gösterir. Tercihinizi daha sonra ana sayfadaki kağıt simgesinden değiştirebilirsiniz.</li>
+      <li>iOS'ta Oyun sizi takip etmek için izin ister; bu izni Ayarlar &gt; Gizlilik ve Güvenlik &gt; Takip bölümünden kapatabilirsiniz.</li>
+      <li>Android'de Ayarlar &gt; Google &gt; Reklamlar bölümünden reklam kimliğinizi sıfırlayabilir veya silebilirsiniz.</li>
+      <li>İzin vermezseniz kişiselleştirilmemiş reklamlar gösterilir.</li>
+      <li>Türkiye'deki oyunculara her zaman kişiselleştirilmemiş reklam gösterilir ve iOS'ta takip izni istenmez.</li>
+    </ul>
+
+    <h2>Çocuklar</h2>
+    <p>Oyun 13 yaşın altındaki çocuklara yönelik değildir ve bu yaşın altındaki kişilerden bilerek kişisel veri toplanmaz.</p>
+
+    <h2>Haklarınız</h2>
+    <p>Verilerinize erişme, düzeltilmesini veya silinmesini isteme gibi haklarınızı kullanmak için bize e-posta gönderebilirsiniz. Türkiye'deki haklarınızın ayrıntısı <a href="#aydinlatma">KVKK Aydınlatma Metni</a>'nde yer alır. Cihazınızdaki oyun verilerine bizim erişimimiz olmadığından, bunları Oyun'u silerek kendiniz kaldırabilirsiniz.</p>
+
+    <h2>Değişiklikler</h2>
+    <p>Bu politika güncellenebilir; güncel sürüm her zaman bu sayfadadır.</p>
+
+    <h2>İletişim</h2>
+    <p>Furkan Öztürk – <a href="mailto:furknozturk06@gmail.com">furknozturk06@gmail.com</a></p>
+    </div>
+    <div id="aydinlatma" class="card">
+    <h1>Kişisel Verilerin Korunması Kanunu Kapsamında Aydınlatma Metni</h1>
+    <p class="meta">Yürürlük tarihi: 24 Kasım 2026</p>
+
+    <p>Bu aydınlatma metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun ("KVKK") 10. maddesi ve Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ uyarınca, Puffy Fish mobil oyununu ("Oyun") kullananları kişisel verilerinin işlenmesi hakkında bilgilendirmek amacıyla hazırlanmıştır.</p>
+
+    <h2>1. Veri sorumlusu</h2>
+    <p>Furkan Öztürk<br>E-posta: <a href="mailto:furknozturk06@gmail.com">furknozturk06@gmail.com</a></p>
+
+    <h2>2. İşlenen kişisel veriler</h2>
+    <p><strong>a) Yalnızca cihazınızda tutulan oyun verileri.</strong> En iyi skorunuz, altın miktarınız, satın aldığınız ve seçtiğiniz karakterler, dil tercihiniz, eğitimin görülüp görülmediği ve günlük reklam hakkınız cihazınızın yerel hafızasında saklanır. Bu veriler veri sorumlusuna ya da başka bir sunucuya gönderilmez; Oyun'da hesap, kayıt veya giriş bulunmaz.</p>
+    <p><strong>b) Reklam hizmeti kapsamında işlenen veriler.</strong> Oyun, ücretsiz sunulabilmesi için Google AdMob reklam hizmetini kullanır. Bu kapsamda Oyun'a gömülü Google Mobile Ads yazılımı tarafından şu veriler işlenebilir:</p>
+    <ul>
+      <li>Cihazın reklam kimliği (Android Reklam Kimliği veya Apple IDFA),</li>
+      <li>IP adresi ve buna dayalı yaklaşık konum (ülke/şehir düzeyinde),</li>
+      <li>Cihaz modeli, işletim sistemi, dil ve ağ bilgileri,</li>
+      <li>Reklam etkileşimleri (görüntüleme, tıklama, ödüllü reklamın tamamlanması),</li>
+      <li>Reklam ve gizlilik izin tercihleriniz.</li>
+    </ul>
+
+    <h2>3. İşleme amaçları</h2>
+    <ul>
+      <li>Oyun içinde reklam gösterilmesi ve Oyun'un ücretsiz sunulması,</li>
+      <li>Ödüllü reklam izlendiğinde altın ödülünün verilmesi,</li>
+      <li>Reklam gösterimlerinin ölçülmesi, sahte tıklama ve dolandırıcılığın önlenmesi,</li>
+      <li>Türkiye'deki kullanıcılara yalnızca kişiselleştirilmemiş reklam gösterilir; reklam kimliği kişiselleştirme amacıyla kullanılmaz ve iOS'ta takip izni istenmez. Diğer ülkelerde, izin verilmesi hâlinde kişiselleştirilmiş reklam gösterilebilir,</li>
+      <li>İzin tercihlerinizin kaydedilmesi ve yönetilmesi,</li>
+      <li>Hukuki yükümlülüklerin yerine getirilmesi.</li>
+    </ul>
+
+    <h2>4. Toplama yöntemi ve hukuki sebepler</h2>
+    <p>Kişisel verileriniz, Oyun'u kullandığınız sırada Google Mobile Ads yazılımı aracılığıyla otomatik yollarla, elektronik ortamda toplanır. Veriler şu hukuki sebeplere dayanılarak işlenir:</p>
+    <ul>
+      <li>Reklamların gösterilmesi, ölçülmesi ve dolandırıcılığın önlenmesi bakımından KVKK m. 5/2-f uyarınca veri sorumlusunun meşru menfaati,</li>
+      <li>İzin tercihlerinin kaydedilmesi ve hukuki yükümlülükler bakımından KVKK m. 5/2-ç,</li>
+      <li>Kişiselleştirilmiş reklam gösterimi ve yurt dışına aktarımın açık rızaya bağlı olduğu hâllerde KVKK m. 5/1 ve m. 9 uyarınca açık rızanız.</li>
+    </ul>
+
+    <h2>5. Aktarım</h2>
+    <p>Reklam hizmeti kapsamında işlenen veriler, hizmet sağlayıcısı Google LLC (ABD) ve Google Ireland Limited (İrlanda) ile bunların reklam iş ortaklarına aktarılır. Bu aktarım yurt dışına aktarım niteliğindedir ve KVKK m. 9'da öngörülen şartlara uygun olarak gerçekleştirilir. Google'ın verileri nasıl kullandığına ilişkin bilgi için:
+      <a href="https://policies.google.com/privacy?hl=tr">Google Gizlilik Politikası</a> ve
+      <a href="https://policies.google.com/technologies/partner-sites?hl=tr">Google'ın iş ortaklarının sitelerini veya uygulamalarını kullandığınızda verilerinizi nasıl kullandığı</a>.</p>
+    <p>Bunun dışında kişisel verileriniz, kanunen yetkili kamu kurumlarının talebi hâlinde ve hukuki yükümlülükler çerçevesinde bu kurumlarla paylaşılabilir.</p>
+
+    <h2>6. Saklama süresi</h2>
+    <p>Cihazınızdaki oyun verileri, Oyun'u silene ya da uygulama verilerini temizleyene kadar yalnızca cihazınızda kalır. Reklam hizmeti kapsamındaki veriler Google tarafından kendi saklama politikalarına göre saklanır.</p>
+
+    <h2>7. Reklam tercihlerinizi yönetme</h2>
+    <ul>
+      <li><strong>Android:</strong> Ayarlar &gt; Google &gt; Reklamlar bölümünden reklam kimliğinizi sıfırlayabilir veya silebilirsiniz.</li>
+      <li><strong>iOS:</strong> Ayarlar &gt; Gizlilik ve Güvenlik &gt; Takip bölümünden Oyun'un takip iznini kapatabilirsiniz.</li>
+      <li>Avrupa Ekonomik Alanı gibi izin gereken bölgelerde, Oyun'un ana sayfasındaki kağıt simgesinden izin tercihlerinizi istediğiniz zaman değiştirebilirsiniz.</li>
+    </ul>
+
+    <h2>8. KVKK m. 11 kapsamındaki haklarınız</h2>
+    <p>Veri sorumlusuna başvurarak;</p>
+    <ul>
+      <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li>
+      <li>İşlenmişse buna ilişkin bilgi talep etme,</li>
+      <li>İşlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+      <li>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,</li>
+      <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme,</li>
+      <li>KVKK m. 7'deki şartlar çerçevesinde silinmesini veya yok edilmesini isteme,</li>
+      <li>Düzeltme, silme ve yok etme işlemlerinin verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li>
+      <li>İşlenen verilerin münhasıran otomatik sistemlerle analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme,</li>
+      <li>Kanuna aykırı işleme sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+    </ul>
+    <p>haklarına sahipsiniz.</p>
+
+    <h2>9. Başvuru</h2>
+    <p>Haklarınıza ilişkin taleplerinizi, Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ'e uygun olarak <a href="mailto:furknozturk06@gmail.com">furknozturk06@gmail.com</a> adresine e-posta ile iletebilirsiniz. Başvurunuz en geç 30 gün içinde ücretsiz olarak sonuçlandırılır; işlemin ayrıca bir maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulu'nca belirlenen tarife uygulanabilir.</p>
+
+    <h2>10. Çocuklar</h2>
+    <p>Oyun 13 yaşın altındaki çocuklara yönelik değildir ve bu yaşın altındaki kişilerden bilerek kişisel veri toplanmaz.</p>
+
+    <h2>11. Değişiklikler</h2>
+    <p>Bu metin gerektiğinde güncellenebilir. Güncel sürüm her zaman bu sayfada yayımlanır.</p>
+    </div>
+  </section>
 </main>
 </body>
 </html>
