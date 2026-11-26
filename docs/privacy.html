@@ -8,7 +8,7 @@
 <script>
   // Türkçe için sayfa doğrudan Türkçe kısma iner: oyun #tr ile açar, ya da tarayıcı dili Türkçedir.
   addEventListener('DOMContentLoaded', function () {
-    var h = location.hash, tr = h === '#tr' || (!h && /^tr/i.test(navigator.language || ''));
+    var h = location.hash, tr = h === '#tr' || (!h && /^tr([-_]|$)/i.test(navigator.language || ''));
     if (tr) document.getElementById('tr').scrollIntoView();
   });
 </script>
